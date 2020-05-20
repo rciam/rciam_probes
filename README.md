@@ -8,7 +8,7 @@ Currently it supports the following probes:
 
 ## Requirements
 * Python 3.5
-* Pip
+* Pip3
 * firefox
 ```bash
 /usr/bin/firefox -marionette --headless -foreground -no-remote -profile /tmp/rust_mozprofilerYSIK2

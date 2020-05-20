@@ -6,7 +6,7 @@ graft driver
 
 include rciam_probes.spec
 include requirements.txt
-include README
+include README.md
 
 prune lib/__pycache__
 prune modules/__pycache__
