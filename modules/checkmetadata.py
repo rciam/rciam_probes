@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+from argparse import ArgumentParser
 from datetime import datetime
 from time import mktime, time, gmtime
 from OpenSSL import crypto
@@ -21,7 +22,7 @@ class RciamMetadataCheck:
         self.__logger = configure_logger(self.__args)
 
     def check_cert(self):
-        # if the user gave no url then exit
+        """Check metadata's certificate"""
         if not self.__args.url:
             self.__logger.error("URL not found. Please provide metadata URL")
             exit(NagiosStatusCode.UNKNOWN.value)
@@ -84,9 +85,15 @@ class RciamMetadataCheck:
         exit(code)
 
 
-# Parse the arguments from the command line
 def parse_arguments(args):
-    parser = argparse.ArgumentParser(description="Cert Check Probe for Argo")
+    """
+    Parse the arguments provided in the command line
+    :param args: list of arguments
+    :type args: list
+    :return: argument object
+    :rtype: ArgumentParser
+    """
+    parser = argparse.ArgumentParser(description="Cert Check Probe for RCIAM")  # type: ArgumentParser
 
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default= LoggingDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity', choices=['debug', 'info', 'warning', 'error', 'critical'])

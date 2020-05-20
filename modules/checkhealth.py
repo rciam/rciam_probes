@@ -29,7 +29,7 @@ class RciamHealthCheck:
     __logger = None
 
     def __init__(self, args=sys.argv[1:]):
-        # Get the arguments
+        """Initialize"""
         self.__args = parse_arguments(args)
         # configure the logger
         self.__logger = configure_logger(self.__args)
@@ -46,6 +46,7 @@ class RciamHealthCheck:
         self.__wait = WebDriverWait(self.__browser, self.__args.delay)
 
     def __hide_cookie_policy(self):
+        """Hide the cookie policy banner"""
         cookie_soup = BeautifulSoup(self.__browser.page_source, 'html.parser')
         cookie_div = cookie_soup.find(id='cookies')
         if cookie_div:
@@ -56,14 +57,17 @@ class RciamHealthCheck:
             self.__wait.until(EC.invisibility_of_element_located((By.ID, 'cookies')))
 
     def __wait_for_spinner(self):
-        # Wait for the spinner to disappear
-        self.__wait.until(EC.invisibility_of_element_located((By.ID, 'loader')))
+        """Wait for the loading spinner to disappear"""
+        try:
+            self.__wait.until(EC.invisibility_of_element_located((By.ID, 'loader')))
+        except TimeoutException:
+            self.__logger.warning('No loader found.Ignore and continue.')
 
-    '''
-    This method iterates over the user attributes fetched by the proxy. It only applies to
-    dummy SPs created by simplesamlPHP
-    '''
     def __print_user_attributes(self):
+        """
+        This method iterates over the user attributes fetched by the proxy. It only applies to
+        dummy SPs created by simplesamlPHP
+        """
         spSoup = BeautifulSoup(self.__browser.page_source, 'html.parser')
         user_attributes = spSoup.find(id='table_with_attributes').find_all('tr')
         # todo: Check if we release all the attributes. Attributes are in columns[0].find('tt').text
@@ -72,13 +76,22 @@ class RciamHealthCheck:
             self.__logger.info("%s(Attribute) => %s" % (columns[0].find('tt').text, columns[1].text))
 
     def __start_ticking(self):
+        """Start timing"""
         self.__start_time = time.time()
 
     def __stop_ticking(self):
+        """
+        Stop timing
+        :return: time in seconds, -1 if __start_time is None
+        :rtype: float
+        """
+        if not self.__start_time:
+            return -1
+
         return time.time() - self.__start_time
 
     def __sp_redirect_disco_n_click(self):
-        # Get the SP usr
+        """Discovery Service View"""
         self.__browser.get(self.__args.service)
         # Log the title of the view
         self.__logger.debug(self.__browser.title)
@@ -95,6 +108,10 @@ class RciamHealthCheck:
         self.__browser.find_element_by_css_selector(selector_callable).click()
 
     def __accept_all_ssp_modules(self):
+        """
+        simplesamlPHP View. Accept all modules.
+        :raises TimeoutException: if the elements fail to load
+        """
         ssp_modules = True
         while ssp_modules:
             self.__wait.until(EC.presence_of_element_located((By.XPATH, "//form[1]")))
@@ -114,10 +131,13 @@ class RciamHealthCheck:
                 self.__hide_cookie_policy()
                 continue_btn.click()
 
-    '''
-    comment: Selenium does not return http status codes. Related issue(https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/141)
-    '''
     def __idp_authenticate(self):
+        """
+        Authenticate to IdP
+        - Selenium does not return http status codes. Related
+          issue(https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/141)
+        :raises TimeoutException: if the elements fail to load
+        """
         self.__wait.until(EC.presence_of_element_located((By.ID, 'username')))
         username = self.__browser.find_element_by_id('username')
         username.clear()
@@ -135,16 +155,21 @@ class RciamHealthCheck:
         # Get the source code from the page and check if authentication failed
 
     def __get_attrs_checking_dummy_sps(self):
+        """Get the attributes available in the dummy SP configured with simplesamlPHP"""
         self.__wait.until(EC.presence_of_element_located((By.ID, "content")))
         self.__wait.until(EC.presence_of_all_elements_located((By.ID, "table_with_attributes")))
         self.__print_user_attributes()
 
     def __verify_sp_home_page_loaded(self):
+        """
+        Verify that the Service Providers Home page loaded successfully
+        :raises TimeoutException: if the elements fail to load
+        """
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div")))
 
     def check_login(self):
-        # log my running command
+        """Check the login flow"""
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
         # start counting progress time
         self.__start_ticking()
@@ -175,9 +200,15 @@ class RciamHealthCheck:
             exit(code)
 
 
-# Parse the arguments from the command line
 def parse_arguments(args):
-    parser = argparse.ArgumentParser(description="Login Health Check Probe for Argo")
+    """
+    Parse the arguments provided in the command line
+    :param args: list of arguments
+    :type args: list
+    :return: argument object
+    :rtype: ArgumentParser
+    """
+    parser = argparse.ArgumentParser(description="Health Check Probe for RCIAM")
 
     parser.add_argument('--username', '-u', dest="username", help='IdP username', required=True)
     parser.add_argument('--password', '-p', dest="password", help='Idp password', required=True)

@@ -29,7 +29,7 @@ $ python setup.py install
 ## Usage
 ### RCIAM Metadata
 ```bash
-chechcert [-h] [-w WARNING] [-c CRITICAL] [-u URL] [-l LOG] [-v VERBOSE]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-u URL] [-l LOG] [-v VERBOSE]
 
 optional arguments:
   -h, --help                          show this help message and exit
@@ -43,11 +43,13 @@ required arguments:
 ```
 #### CLI command
 ```bash
-checkcert -w 20 -c 10 -u http://example.com/service/Shibboleth.sso/Metadata
+sample command: checkcert -w 20 -c 10 -u http://example.com/service/Shibboleth.sso/Metadata
+
+sample output:  SSL_CERT OK - x509 certificate 'test-eosc-hub.ggus.eu' from 'KIT-CA' is valid until 2022-05-17 10:00:00 (expires in 727 days) | 'SSL Metadata Cert'=727;20;10;0;3650
 ```
 ### RCIAM Health
 ```bash
-chechlogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE]
+checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE]
           [-d DELAY] [-v VERBOSE] [-l LOG]
 
 optional arguments:
@@ -65,10 +67,11 @@ required arguments:
 ```
 #### CLI command
 ```bash
-checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp
-           -i https://idp.admin.grnet.gr/idp/shibboleth
+sample command: checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp
+                           -i https://idp.admin.grnet.gr/idp/shibboleth
+
+sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
-### RCIAM Health
 
 ## What the probes do
 
@@ -81,7 +84,7 @@ RCIAM Metadata Certificate Health does the following:
 ### RCIAM Health
 
 RCIAM Health does the following:
-* Checks if the login flow through EGI RCIAM service is up and returns success
+* Checks if the login flow through the AAI Proxy is successful 
 
 #### SAML Login flow
 * The user presses login or follow a symbolic link to the service
@@ -92,7 +95,7 @@ RCIAM Health does the following:
   * A number of simplesamlphp modules will fire. Last will always be the consent page
 * The user lands to the home page of the service
 
-The probes return exit codes and responses according to Nagios Plugins Specifications.
+The probes return exit codes and performance data according to Nagios Plugins Specifications.
 
 ## License
 Licensed under the Apache 2.0 license, for details see [LICENSE](https://github.com/ioigoume/rciam_probes/blob/master/LICENSE)
