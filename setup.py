@@ -1,10 +1,9 @@
 import sys
-from distutils.core import setup
+from setuptools import setup
 import glob
 
 NAME = 'rciam_probes'
 NAGIOSPLUGINS = '/usr/libexec/argo-monitoring/probes/rciam'
-
 
 def get_ver():
     try:

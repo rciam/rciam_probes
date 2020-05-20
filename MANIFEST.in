@@ -1,3 +1,12 @@
-include src/*
-include modules/*
+graft src
+graft modules
+graft var
+graft lib
+graft driver
+
 include rciam_probes.spec
+include requirements.txt
+include README
+
+prune lib/__pycache__
+prune modules/__pycache__

@@ -17,12 +17,22 @@ Currently it supports the following probes:
 ## Installation
 Install the requirements using pip (preferably in a virtualenv):
 ```bash
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 Then use setup.py to install the program:
 ```bash
 $ python setup.py install
+```
+
+Make rpm
+```bash
+make rpm
+```
+
+Make tarball
+```bash
+make sources
 ```
 
 ## Usage

@@ -1,5 +1,5 @@
 # sitelib
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import *;print(get_python_lib())")}
 %define dir /usr/libexec/argo-monitoring/probes/rciam
 
 Name: rciam_probes
@@ -35,7 +35,7 @@ install -d -m 755 %{buildroot}/%{python_sitelib}/rciam_probes
 rm -rf %{buildroot}
 
 %files -f INSTALLED_FILES
-%defattr(-,root,root,-)
+%defattr(-,root,root,0755)
 %{python_sitelib}/rciam_probes
 %{dir}
 
