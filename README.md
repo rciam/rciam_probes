@@ -95,4 +95,4 @@ RCIAM Health does the following:
 The probes return exit codes and responses according to Nagios Plugins Specifications.
 
 ## License
-Licensed under the Apache 2.0 license, for details see LICENSE
+Licensed under the Apache 2.0 license, for details see [LICENSE](https://github.com/ioigoume/rciam_probes/blob/master/LICENSE)
