@@ -25,20 +25,20 @@ def data_files():
 
 setup(name=NAME,
       version=get_ver(),
-      license='AGPL 3.0',
-      author='GRNET',
+      license='Apache-2.0',
+      author='ioigoume@admin.grnet.gr',
       author_email='ioigoume@admin.grnet.gr',
       description='Package includes probes for RCIAM',
       platforms='noarch',
       long_description='''
       This package includes probes for RCIAM.
       Currently it supports the following components:
-        - RCIAM Metadata Certificate Health
-        - RCIAM Login Health
+        - Metadata Health
+        - Login Health
       ''',
-      url='https://github.com/rciam',
+      url='https://github.com/ioigoume/rciam_probes',
       data_files=data_files(),
       packages=['rciam_probes'],
       package_dir={'rciam_probes': 'modules/'},
-      python_requires='>=3.5'
+      python_requires='~=3.5'
       )

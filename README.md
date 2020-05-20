@@ -3,8 +3,8 @@
 This repository contains Nagios plugins to check availability of RCIAM Services.
 
 Currently it supports the following probes:
-* RCIAM Metadata Certificate Health
-* RCIAM Login Health
+* Metadata Health
+* Login Health
 
 ## Requirements
 * Python 3.5
@@ -13,7 +13,6 @@ Currently it supports the following probes:
 ```bash
 /usr/bin/firefox -marionette --headless -foreground -no-remote -profile /tmp/rust_mozprofilerYSIK2
 ```
-
 
 ## Installation
 Install the requirements using pip (preferably in a virtualenv):
@@ -27,7 +26,7 @@ $ python setup.py install
 ```
 
 ## Usage
-### RCIAM Metadata
+### Metadata Health
 ```bash
 checkcert [-h] [-w WARNING] [-c CRITICAL] [-u URL] [-l LOG] [-v VERBOSE]
 
@@ -47,7 +46,7 @@ sample command: checkcert -w 20 -c 10 -u http://example.com/service/Shibboleth.s
 
 sample output:  SSL_CERT OK - x509 certificate 'test-eosc-hub.ggus.eu' from 'KIT-CA' is valid until 2022-05-17 10:00:00 (expires in 727 days) | 'SSL Metadata Cert'=727;20;10;0;3650
 ```
-### RCIAM Health
+### Login Health
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE]
           [-d DELAY] [-v VERBOSE] [-l LOG]
@@ -75,15 +74,15 @@ sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 
 ## What the probes do
 
-### RCIAM Metadata Certificate Health
+### Metadata Certificate Health
 
-RCIAM Metadata Certificate Health does the following:
+Metadata Certificate Health does the following:
 
 * Checks if the x.509 certificate included in the metadata is valid
 
-### RCIAM Health
+### Login Health
 
-RCIAM Health does the following:
+Login Health does the following:
 * Checks if the login flow through the AAI Proxy is successful 
 
 #### SAML Login flow
