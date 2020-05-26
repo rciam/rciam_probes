@@ -84,3 +84,28 @@ def gen_dict_extract(var, key):
     elif isinstance(var, list):
         for d in var:
             yield from gen_dict_extract(d, key)
+
+
+def fetch_cert_from_type(metadata_dict, cert_type):
+    """
+    Fetch X509 per type. Supported types [signing, encryption]
+    :param metadata_dict: Metadata passed in dictionary format
+    :type metadata_dict: dict
+    :param cert_type: The type of Certificate i am looking for
+    :type cert_type: str
+
+    :return: X509 certificate
+    :rtype: str
+    """
+    try:
+        x509_list_gen = gen_dict_extract(metadata_dict, 'KeyDescriptor')
+        x509_list = next(x509_list_gen)
+        for x509_elem_dict in x509_list:
+            if x509_elem_dict.get('@use') != cert_type:
+                continue
+            return x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
+        # If no Certificate available raise an exception
+        raise Exception('No X509 certificate found')
+    except Exception as e:
+        # Log the title of the view
+        raise Exception(e)

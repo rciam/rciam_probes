@@ -10,7 +10,7 @@ from OpenSSL import crypto
 # import methods from the lib directory
 from lib.enums import NagiosStatusCode, LoggingDefaults
 from lib.templates import *
-from lib.utils import configure_logger, get_xml, gen_dict_extract
+from lib.utils import configure_logger, get_xml, fetch_cert_from_type
 
 
 class RciamMetadataCheck:
@@ -29,11 +29,11 @@ class RciamMetadataCheck:
 
         # log my running command
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
+
         try:
-            metadataDict = get_xml(self.__args.url)
-            x509Gen = gen_dict_extract(metadataDict, 'X509Certificate')
-            x509 = next(x509Gen)
-            # create crt string
+            metadata_dict = get_xml(self.__args.url)
+            # Find the certificate by type
+            x509 = fetch_cert_from_type(metadata_dict, self.__args.ctype)
             x509_str = "-----BEGIN CERTIFICATE-----\n" + x509 + "\n-----END CERTIFICATE-----\n"
             # Decode the x509 certificate
             x509_obj = crypto.load_certificate(crypto.FILETYPE_PEM, x509_str)
@@ -99,6 +99,7 @@ def parse_arguments(args):
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity', choices=['debug', 'info', 'warning', 'error', 'critical'])
     parser.add_argument('--warning', '-w', dest="warning", help='Warning threshold', type=int, default=30)
     parser.add_argument('--critical', '-c', dest="critical", help='Critical threshold', type=int, default=10)
+    parser.add_argument('--ctype', '-t', dest="ctype", help='Certificate type', default='signing', choices=['signing', 'encryption'])
     parser.add_argument('--url', '-u', dest="url", required=True,
                         help='Metadata URL, e.g. https://example.com/saml2IDp/proxy.xml')
 

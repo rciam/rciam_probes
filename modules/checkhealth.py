@@ -217,10 +217,10 @@ def parse_arguments(args):
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity', choices=['debug', 'info', 'warning', 'error', 'critical'])
     parser.add_argument('--delay', '-d', dest="delay", help='Maximum delay threshold when loading web page document',
                         type=int, default=10)
-    parser.add_argument('--service', '-s', dest="service",
+    parser.add_argument('--sp', '-s', dest="service",
                         help='Service Provider Login, e.g. https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp',
                         required=True)
-    parser.add_argument('--identity', '-i', dest="identity", help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
+    parser.add_argument('--idp', '-i', dest="identity", help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
                         required=True)
 
     return parser.parse_args(args)

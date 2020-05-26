@@ -38,12 +38,13 @@ make sources
 ## Usage
 ### Metadata Health
 ```bash
-checkcert [-h] [-w WARNING] [-c CRITICAL] [-u URL] [-l LOG] [-v VERBOSE]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-u URL] [-t ctype] [-l LOG] [-v VERBOSE]
 
 optional arguments:
   -h, --help                          show this help message and exit
   -c CRITICAL,  --critical CRITICAL   remaining days threshold for critical
   -w WARNING,   --warning WARNING     remaining days threshold for warning
+  -t CTYPE,     --ctype CTYPE         type of certificate {signing, encryption}
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
 
