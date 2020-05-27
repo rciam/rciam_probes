@@ -163,13 +163,26 @@ class RciamHealthCheck:
     def __verify_sp_home_page_loaded(self):
         """
         Verify that the Service Providers Home page loaded successfully
-        :raises TimeoutException: if the elements fail to load
+        :raises TimeoutException: if an element fails to load
         """
+        self.__wait.until(lambda driver: self.__browser.current_url.strip('/') == self.__args.service.strip('/'))
+        self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
+        self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "title")))
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
-        self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div")))
+
+        # Log the title of the view
+        self.__logger.debug(self.__browser.title + "(" + self.__browser.current_url + ")")
 
     def check_login(self):
         """Check the login flow"""
+        # Find the password argument and remove it
+        if '-p' in sys.argv:
+            pass_index = sys.argv.index('-p')
+            del sys.argv[pass_index:pass_index+2]
+        elif '--password' in sys.argv:
+            pass_index = sys.argv.index('--password')
+            del sys.argv[pass_index:pass_index+2]
+
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
         # start counting progress time
         self.__start_ticking()
