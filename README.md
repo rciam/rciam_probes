@@ -107,6 +107,7 @@ Login Health does the following:
 * AAI Proxy presents the Discovery Service and the user selects the Identity Provider
 * The user authenticates to the IdP
   * Provide username and password and press submit
+  * (Optional)Accept Consent page from the Identity Provider
   * SAML Response post back to the proxy
   * A number of simplesamlphp modules will fire. Last will always be the consent page
 * The user lands to the home page of the service

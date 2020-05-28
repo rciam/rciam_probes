@@ -4,6 +4,7 @@
 import argparse
 import sys
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.support.ui import WebDriverWait
@@ -150,9 +151,31 @@ class RciamHealthCheck:
         # Log the title of the view
         self.__logger.debug(self.__browser.title)
         self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']")))
-        # for the Grnet Identity Provider the submit function is not working
+        # Accept the form
         self.__browser.find_element_by_css_selector("form button[type='submit']").click()
         # Get the source code from the page and check if authentication failed
+
+    def __idp_shib_consent_page(self):
+        """
+        If the IdP prompts for explicit consent in order to release the attributes
+        This page is a Shibboleth consent page
+        Info:
+        - Shibboleth consent pages have element: input[type='submit'][value='Accept']
+        - simplesamlPHP consent pages have element: button[type='submit'][name='yes']
+        """
+        try:
+            regex_domain = r"^https?:[\/]{2}(.*?)[\/]{1}.*$"
+            domain = re.search(regex_domain, self.__args.identity).group(1)
+            # Only wait at most 5 seconds.
+            WebDriverWait(self.__browser, 5).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
+            WebDriverWait(self.__browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Accept']")))
+            # Log the title of the view
+            self.__logger.debug(self.__browser.title)
+            # Accept the form
+            self.__browser.find_element_by_css_selector("form [type='submit'][value='Accept']").click()
+            # Get the source code from the page and check if authentication failed
+        except TimeoutException:
+            self.__logger.info('Idp has no consent page. Continue...')
 
     def __get_attrs_checking_dummy_sps(self):
         """Get the attributes available in the dummy SP configured with simplesamlPHP"""
@@ -191,6 +214,9 @@ class RciamHealthCheck:
             self.__sp_redirect_disco_n_click()
             # Authenticate
             self.__idp_authenticate()
+            # Some IdPs might request explicit consent for the transmitted attributes
+            # fixme: Currently supporting only Consent pages from Shibboleth IdPs
+            self.__idp_shib_consent_page()
             # You came back from the Idp. Iterate over all SSP modules and press continue
             self.__accept_all_ssp_modules()
             # Verify that the SPs home page loaded
