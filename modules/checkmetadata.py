@@ -4,22 +4,49 @@
 import argparse
 import sys
 from argparse import ArgumentParser
-from datetime import datetime
-from time import mktime, time, gmtime
-from OpenSSL import crypto
 # import methods from the lib directory
 from lib.enums import NagiosStatusCode, LoggingDefaults
 from lib.templates import *
-from lib.utils import configure_logger, get_xml, fetch_cert_from_type
+from lib.utils import configure_logger, get_xml, fetch_cert_from_type, evaluate_single_certificate
 
 
 class RciamMetadataCheck:
     __logger = None
     __args = None
+    __msg = ''
+    __ncode = -1
 
     def __init__(self, args=sys.argv[1:]):
         self.__args = parse_arguments(args)
         self.__logger = configure_logger(self.__args)
+
+    def get_nagios_status_n_code(self, expiration_days, certData):
+        """
+        Return the status and the exit code  needed by Nagios
+        :param expiration_days: Days remaining for the certificate to expire
+        :type expiration_days: int
+
+        :param certData: Attributes of the Certificate after translation
+        :type certData: dict
+
+        :return: status, code NastiosStatusCode value and exit code
+        :rtype: NagiosStatusCode, int
+        """
+        if expiration_days > self.__args.warning:
+            status = NagiosStatusCode.OK.name
+            code = NagiosStatusCode.OK.value
+        elif self.__args.warning > expiration_days > self.__args.critical:
+            status = NagiosStatusCode.WARNING.name
+            code = NagiosStatusCode.WARNING.value
+        elif expiration_days < self.__args.critical:
+            status = NagiosStatusCode.CRITICAL.name
+            code = NagiosStatusCode.CRITICAL.value
+        else:
+            msg = "State" + NagiosStatusCode.UNKNOWN.name
+            self.__logger.info(msg)
+            code = NagiosStatusCode.UNKNOWN.value
+
+        return status, code
 
     def check_cert(self):
         """Check metadata's certificate"""
@@ -33,56 +60,45 @@ class RciamMetadataCheck:
         try:
             metadata_dict = get_xml(self.__args.url)
             # Find the certificate by type
-            x509 = fetch_cert_from_type(metadata_dict, self.__args.ctype)
-            x509_str = "-----BEGIN CERTIFICATE-----\n" + x509 + "\n-----END CERTIFICATE-----\n"
-            # Decode the x509 certificate
-            x509_obj = crypto.load_certificate(crypto.FILETYPE_PEM, x509_str)
-            certData = {
-                'Subject': dict(x509_obj.get_subject().get_components()),
-                'Issuer': dict(x509_obj.get_issuer().get_components()),
-                'serialNumber': x509_obj.get_serial_number(),
-                'version': x509_obj.get_version(),
-                'not Before': datetime.strptime(x509_obj.get_notBefore().decode(), '%Y%m%d%H%M%SZ'),
-                'not After': datetime.strptime(x509_obj.get_notAfter().decode(), '%Y%m%d%H%M%SZ'),
-            }
-            certData['Subject'] = {y.decode(): certData['Subject'].get(y).decode() for y in certData['Subject'].keys()}
-            certData['Issuer'] = {y.decode(): certData['Issuer'].get(y).decode() for y in certData['Issuer'].keys()}
+            x509_dict = fetch_cert_from_type(metadata_dict, self.__args.ctype)
+            if len(x509_dict) > 1:
+                msg_list = []
+                for ctype, value in x509_dict.items():
+                    expiration_days, certData = evaluate_single_certificate(value, self.__logger)
+                    status, code = self.get_nagios_status_n_code(expiration_days, certData)
+                    msg_list.append(cert_health_check_all_tmpl.substitute(type=ctype,status=status))
+                    self.__ncode = [self.__ncode, code][self.__ncode < code]
+                separator = ', '
+                self.__msg = separator.join(msg_list)
+                # Add the performance data
+                self.__msg += " | 'SSL Metadata Cert Status'=" + str(self.__ncode)
+
+
+            else:
+                expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0], self.__logger)
+                status, code = self.get_nagios_status_n_code(expiration_days, certData)
+                self.__ncode = code
+                self.__msg = cert_health_check_tmpl.substitute( type=self.__args.ctype,
+                                                                status=status,
+                                                                subject=certData['Subject']['CN'],
+                                                                issuer=certData['Issuer']['CN'],
+                                                                not_after=certData['not After'],
+                                                                expiration_days=expiration_days,
+                                                                warning=self.__args.warning,
+                                                                critical=self.__args.critical
+                                                              )
+
         except Exception as e:
-            # Log the title of the view
             self.__logger.error(e)
+            print("Unknown State")
             exit(NagiosStatusCode.UNKNOWN.value)
 
-        cert_expire = certData['not After']
-        now = datetime.fromtimestamp(mktime(gmtime(time())))
-        expiration_days = (cert_expire - now).days
-        if expiration_days > self.__args.warning:
-            status = NagiosStatusCode.OK.name
-            code = NagiosStatusCode.OK.value
-        elif self.__args.warning > expiration_days > self.__args.critical:
-            status = NagiosStatusCode.WARNING.name
-            code = NagiosStatusCode.WARNING.value
-        elif expiration_days < self.__args.critical:
-            status = NagiosStatusCode.CRITICAL.name
-            code = NagiosStatusCode.CRITICAL.value
-        else:
-            msg = "State" + NagiosStatusCode.UNKNOWN.name
-            self.__logger.info(msg)
-            print(msg)
-            exit(NagiosStatusCode.UNKNOWN.value)
-        msg = cert_health_check_tmpl.substitute(
-            status=status,
-            subject=certData['Subject']['CN'],
-            issuer=certData['Issuer']['CN'],
-            not_after=certData['not After'],
-            expiration_days=expiration_days,
-            warning=self.__args.warning,
-            critical=self.__args.critical
-        )
+
         # print to output
-        print(msg)
+        print(self.__msg)
         # print to logs
-        self.__logger.info(msg)
-        exit(code)
+        self.__logger.info(self.__msg)
+        exit(self.__ncode)
 
 
 def parse_arguments(args):
@@ -95,11 +111,13 @@ def parse_arguments(args):
     """
     parser = argparse.ArgumentParser(description="Cert Check Probe for RCIAM")  # type: ArgumentParser
 
-    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default= LoggingDefaults.LOG_FILE.value)
-    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity', choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
+    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
+                        choices=['debug', 'info', 'warning', 'error', 'critical'])
     parser.add_argument('--warning', '-w', dest="warning", help='Warning threshold', type=int, default=30)
     parser.add_argument('--critical', '-c', dest="critical", help='Critical threshold', type=int, default=10)
-    parser.add_argument('--ctype', '-t', dest="ctype", help='Certificate type', default='signing', choices=['signing', 'encryption'])
+    parser.add_argument('--ctype', '-t', dest="ctype", help='Certificate type', default='signing',
+                        choices=['signing', 'encryption', 'all'])
     parser.add_argument('--url', '-u', dest="url", required=True,
                         help='Metadata URL, e.g. https://example.com/saml2IDp/proxy.xml')
 

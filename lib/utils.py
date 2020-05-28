@@ -4,6 +4,9 @@ import logging
 import os
 import urllib3
 import xmltodict
+from OpenSSL import crypto
+from datetime import datetime
+from time import mktime, time, gmtime
 
 from lib.enums import LoggingDefaults, LoggingLevel
 
@@ -94,18 +97,70 @@ def fetch_cert_from_type(metadata_dict, cert_type):
     :param cert_type: The type of Certificate i am looking for
     :type cert_type: str
 
-    :return: X509 certificate
-    :rtype: str
+    :return: dictionary of certificates {type<str>: certificate<str>}
+    :rtype: dict
     """
     try:
         x509_list_gen = gen_dict_extract(metadata_dict, 'KeyDescriptor')
         x509_list = next(x509_list_gen)
-        for x509_elem_dict in x509_list:
-            if x509_elem_dict.get('@use') != cert_type:
-                continue
-            return x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
-        # If no Certificate available raise an exception
+        x509_dict = {}
+        # If all is chosen then return a list with all the certificates
+        if cert_type == 'all':
+            for x509_elem_dict in x509_list:
+                x509_dict[x509_elem_dict.get('@use')] = x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get(
+                    'ds:X509Certificate')
+            return x509_dict
+        else:  # If not then return the certificate of the type requested
+            for x509_elem_dict in x509_list:
+                if x509_elem_dict.get('@use') != cert_type:
+                    continue
+                x509_dict[x509_elem_dict.get('@use')] = x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get(
+                    'ds:X509Certificate')
+                return x509_dict
+                # If no Certificate available raise an exception
         raise Exception('No X509 certificate found')
     except Exception as e:
         # Log the title of the view
         raise Exception(e)
+
+
+def evaluate_single_certificate(x509, logger):
+    """
+    Translate the certificate to its attributes. Calculate the days to expiration
+    :param x509: body of x509
+    :type x509: string
+
+    :params logger: Instance of logging object
+    :type logger: Logger Object
+
+    :return: Days to Expiration
+    :rtype: int
+
+    :return: Certificates Attributes
+    :rtype: dict
+    """
+    try:
+        x509_str = "-----BEGIN CERTIFICATE-----\n" + x509 + "\n-----END CERTIFICATE-----\n"
+        # Decode the x509 certificate
+        x509_obj = crypto.load_certificate(crypto.FILETYPE_PEM, x509_str)
+        certData = {
+            'Subject': dict(x509_obj.get_subject().get_components()),
+            'Issuer': dict(x509_obj.get_issuer().get_components()),
+            'serialNumber': x509_obj.get_serial_number(),
+            'version': x509_obj.get_version(),
+            'not Before': datetime.strptime(x509_obj.get_notBefore().decode(), '%Y%m%d%H%M%SZ'),
+            'not After': datetime.strptime(x509_obj.get_notAfter().decode(), '%Y%m%d%H%M%SZ'),
+        }
+        certData['Subject'] = {y.decode(): certData['Subject'].get(y).decode() for y in certData['Subject'].keys()}
+        certData['Issuer'] = {y.decode(): certData['Issuer'].get(y).decode() for y in certData['Issuer'].keys()}
+
+    except Exception as e:
+        logger.error(e)
+        # Throw the exception back to the main thread to catch
+        raise Exception from e
+
+    cert_expire = certData['not After']
+    now = datetime.fromtimestamp(mktime(gmtime(time())))
+    expiration_days = (cert_expire - now).days
+
+    return expiration_days, certData

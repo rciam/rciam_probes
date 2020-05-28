@@ -44,7 +44,7 @@ optional arguments:
   -h, --help                          show this help message and exit
   -c CRITICAL,  --critical CRITICAL   remaining days threshold for critical
   -w WARNING,   --warning WARNING     remaining days threshold for warning
-  -t CTYPE,     --ctype CTYPE         type of certificate {signing, encryption}
+  -t CTYPE,     --ctype CTYPE         type of certificate {signing, encryption, all}
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
 
@@ -53,9 +53,15 @@ required arguments:
 ```
 #### CLI command
 ```bash
-sample command: checkcert -w 20 -c 10 -u http://example.com/service/Shibboleth.sso/Metadata
+sample command: checkcert -w 20 -c 10 -u http://example.com/service/Shibboleth.sso/Metadata -t signing
 
-sample output:  SSL_CERT OK - x509 certificate 'test-eosc-hub.ggus.eu' from 'KIT-CA' is valid until 2022-05-17 10:00:00 (expires in 727 days) | 'SSL Metadata Cert'=727;20;10;0;3650
+sample output:  SSL_CERT(signing) OK - x509 certificate 'test-eosc-hub.ggus.eu' from 'KIT-CA' is valid until 2022-05-17 10:00:00 (expires in 727 days) | 'SSL Metadata Cert'=727;20;10;0;3650
+```
+For the case of type:all the output will be different
+```bash
+sample command: checkcert -u https://aai.egi.eu/proxy/saml2/idp/metadata.php -w 20 -c 10 -t all
+
+sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Cert Status'=0
 ```
 ### Login Health
 ```bash
@@ -72,8 +78,8 @@ required arguments:
   -u USERNAME,  --username USERNAME   username of the user to be authenticated
   -p PASSWORD,  --password PASSWORD   password of the user to be authenticated
   -f FIREFOX,   --firefox FIREFOX     firefox binary full path
-  -i IDENTITY,  --identity IDENTITY   entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth
-  -s SERVICE,   --service SERVICE     full URL of the Service Provider's authentication link the probe will test.
+  -i IDENTITY,  --idp IDENTITY        entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth
+  -s SERVICE,   --sp SERVICE          full URL of the Service Provider's authentication link the probe will test.
 ```
 #### CLI command
 ```bash
@@ -98,9 +104,9 @@ Login Health does the following:
 
 #### SAML Login flow
 * The user presses login or follow a symbolic link to the service
-* AAI Proxy presents the Discovery Service and the user selects and IdP
+* AAI Proxy presents the Discovery Service and the user selects the Identity Provider
 * The user authenticates to the IdP
-  * Basic authentication post
+  * Provide username and password and press submit
   * SAML Response post back to the proxy
   * A number of simplesamlphp modules will fire. Last will always be the consent page
 * The user lands to the home page of the service
@@ -108,4 +114,4 @@ Login Health does the following:
 The probes return exit codes and performance data according to Nagios Plugins Specifications.
 
 ## License
-Licensed under the Apache 2.0 license, for details see [LICENSE](https://github.com/ioigoume/rciam_probes/blob/master/LICENSE)
+Licensed under the Apache 2.0 license, for details see [LICENSE](https://github.com/rciam/rciam_probes/blob/master/LICENSE)

@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2020-05-22
 ### Added
-- Metadata Health by Certificate type(signing, encryption)
-- Login Health
+- Metadata Health by Certificate type(signing, encryption, all)
+- Login Health(SAML, OIDC)
 
 ### Changed
 
