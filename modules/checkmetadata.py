@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 # import methods from the lib directory
 from lib.enums import NagiosStatusCode, LoggingDefaults
 from lib.templates import *
-from lib.utils import configure_logger, get_xml, fetch_cert_from_type, evaluate_single_certificate
+from lib.utils import *
 
 
 class RciamMetadataCheck:
@@ -64,9 +64,9 @@ class RciamMetadataCheck:
             if len(x509_dict) > 1:
                 msg_list = []
                 for ctype, value in x509_dict.items():
-                    expiration_days, certData = evaluate_single_certificate(value, self.__logger)
+                    expiration_days, certData = evaluate_single_certificate(value)
                     status, code = self.get_nagios_status_n_code(expiration_days, certData)
-                    msg_list.append(cert_health_check_all_tmpl.substitute(type=ctype,status=status))
+                    msg_list.append(cert_health_check_all_tmpl.substitute(type=ctype, status=status))
                     self.__ncode = [self.__ncode, code][self.__ncode < code]
                 separator = ', '
                 self.__msg = separator.join(msg_list)
@@ -75,24 +75,23 @@ class RciamMetadataCheck:
 
 
             else:
-                expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0], self.__logger)
+                expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0])
                 status, code = self.get_nagios_status_n_code(expiration_days, certData)
                 self.__ncode = code
-                self.__msg = cert_health_check_tmpl.substitute( type=self.__args.ctype,
-                                                                status=status,
-                                                                subject=certData['Subject']['CN'],
-                                                                issuer=certData['Issuer']['CN'],
-                                                                not_after=certData['not After'],
-                                                                expiration_days=expiration_days,
-                                                                warning=self.__args.warning,
-                                                                critical=self.__args.critical
-                                                              )
+                self.__msg = cert_health_check_tmpl.substitute(type=self.__args.ctype,
+                                                               status=status,
+                                                               subject=certData['Subject']['CN'],
+                                                               issuer=certData['Issuer']['CN'],
+                                                               not_after=certData['not After'],
+                                                               expiration_days=expiration_days,
+                                                               warning=self.__args.warning,
+                                                               critical=self.__args.critical
+                                                               )
 
         except Exception as e:
             self.__logger.error(e)
             print("Unknown State")
             exit(NagiosStatusCode.UNKNOWN.value)
-
 
         # print to output
         print(self.__msg)

@@ -107,7 +107,8 @@ def fetch_cert_from_type(metadata_dict, cert_type):
         # If all is chosen then return a list with all the certificates
         if cert_type == 'all':
             for x509_elem_dict in x509_list:
-                x509_dict[x509_elem_dict.get('@use')] = x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get(
+                mcert_type = ['unknown', x509_elem_dict.get('@use')]['@use' in x509_elem_dict]
+                x509_dict[mcert_type] = x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get(
                     'ds:X509Certificate')
             return x509_dict
         else:  # If not then return the certificate of the type requested
@@ -118,20 +119,17 @@ def fetch_cert_from_type(metadata_dict, cert_type):
                     'ds:X509Certificate')
                 return x509_dict
                 # If no Certificate available raise an exception
-        raise Exception('No X509 certificate found')
+        raise Exception("No X509 certificate of type:%s found" % (cert_type))
     except Exception as e:
         # Log the title of the view
-        raise Exception(e)
+        raise Exception(e.args[0]) from e
 
 
-def evaluate_single_certificate(x509, logger):
+def evaluate_single_certificate(x509):
     """
     Translate the certificate to its attributes. Calculate the days to expiration
     :param x509: body of x509
     :type x509: string
-
-    :params logger: Instance of logging object
-    :type logger: Logger Object
 
     :return: Days to Expiration
     :rtype: int
@@ -155,7 +153,6 @@ def evaluate_single_certificate(x509, logger):
         certData['Issuer'] = {y.decode(): certData['Issuer'].get(y).decode() for y in certData['Issuer'].keys()}
 
     except Exception as e:
-        logger.error(e)
         # Throw the exception back to the main thread to catch
         raise Exception from e
 

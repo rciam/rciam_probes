@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import *
 
 # import methods from the lib directory
-from lib.enums import NagiosStatusCode, LoggingDefaults, LoggingLevel
+from lib.enums import NagiosStatusCode, LoggingDefaults
 from lib.templates import *
 from lib.utils import configure_logger
 
