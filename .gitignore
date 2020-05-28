@@ -123,7 +123,7 @@ venv.bak/
 dmypy.json
 
 # Pyre type checker
-.pyre/i
+.pyre/
 
 # Intelij staff
 .idea
