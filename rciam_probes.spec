@@ -41,5 +41,6 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Tue Jun 30 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 0.1
-- Initial version of the package
+* Tue Jun 01 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.3
+- Metadata Health by Certificate type(signing, encryption, all)
+- Login Health(SAML, OIDC)
