@@ -25,6 +25,11 @@ pipeline {
                 }
                 archiveArtifacts artifacts: '**/*.rpm', fingerprint: true
             }
+            post {
+                always {
+                    cleanWs()
+                }
+            }
         }
     }
 }
