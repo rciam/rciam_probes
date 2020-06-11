@@ -4,7 +4,7 @@
 
 Name: rciam_probes
 Summary: RCIAM related probes
-Version: 1.0.3
+Version: 1.0.4
 Release: 1%{?dist}
 License: Apache-2.0
 Source0: %{name}-%{version}.tar.gz
@@ -41,5 +41,5 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Tue Jun 11 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.3
+* Tue Jun 11 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.4
 - Fixed wrong url evaluation of Service landing page
