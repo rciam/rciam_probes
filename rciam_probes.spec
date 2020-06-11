@@ -41,6 +41,5 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Tue Jun 01 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.3
-- Metadata Health by Certificate type(signing, encryption, all)
-- Login Health(SAML, OIDC)
+* Tue Jun 11 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.3
+- Fixed wrong url evaluation of Service landing page

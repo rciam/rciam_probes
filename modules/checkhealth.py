@@ -188,7 +188,7 @@ class RciamHealthCheck:
         Verify that the Service Providers Home page loaded successfully
         :raises TimeoutException: if an element fails to load
         """
-        self.__wait.until(lambda driver: self.__browser.current_url.strip('/') == self.__args.service.strip('/'))
+        self.__wait.until(lambda driver: self.__browser.current_url.strip('/').find(self.__args.service.strip('/')) == 0)
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "title")))
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
