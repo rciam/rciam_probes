@@ -118,22 +118,26 @@ class RciamHealthCheck:
         """
         ssp_modules = True
         while ssp_modules:
-            self.__wait.until(EC.presence_of_element_located((By.XPATH, "//form[1]")))
-            self.__wait.until(EC.presence_of_element_located((By.ID, "cookies")))
-            self.__wait.until(EC.element_to_be_clickable((By.ID, "yesbutton")))
-            # Log the title of the view
-            self.__logger.debug(self.__browser.title)
-            # find if this is the consent page
-            soup = BeautifulSoup(self.__browser.page_source, 'html.parser')
-            ssp_module_action = soup.find('form').get('action')
-            if "getconsent.php" in ssp_module_action:
+            try:
+                self.__wait.until(EC.presence_of_element_located((By.XPATH, "//form[1]")))
+                self.__wait.until(EC.presence_of_element_located((By.ID, "cookies")))
+                self.__wait.until(EC.element_to_be_clickable((By.ID, "yesbutton")))
+                # Log the title of the view
+                self.__logger.debug(self.__browser.title)
+                # find if this is the consent page
+                soup = BeautifulSoup(self.__browser.page_source, 'html.parser')
+                ssp_module_action = soup.find('form').get('action')
+                if "getconsent.php" in ssp_module_action:
+                    ssp_modules = False
+                # Now click yes on the form and proceed
+                continue_btn = self.__browser.find_element_by_id("yesbutton")
+                if continue_btn.is_enabled():
+                    self.__wait_for_spinner()
+                    self.__hide_cookie_policy()
+                    continue_btn.click()
+            except TimeoutException:
+                self.__logger.info('No simplesamlPHP modules found. Continue...')
                 ssp_modules = False
-            # Now click yes on the form and proceed
-            continue_btn = self.__browser.find_element_by_id("yesbutton")
-            if continue_btn.is_enabled():
-                self.__wait_for_spinner()
-                self.__hide_cookie_policy()
-                continue_btn.click()
 
     def __idp_authenticate(self):
         """

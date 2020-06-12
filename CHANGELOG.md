@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Empty message in raise Exception
 - Process Explicit Consent prompt by the Identity Provider
 - Fixed wrong url evaluation of Service landing page
+- No SSP modules present
+- Multi Discovery Service hops
 
 ### Changed
 
