@@ -9,10 +9,11 @@ Currently it supports the following probes:
 ## Requirements
 * Python 3.5
 * Pip3
-* firefox
-```bash
-/usr/bin/firefox -marionette --headless -foreground -no-remote -profile /tmp/rust_mozprofilerYSIK2
-```
+* firefox: ```/usr/bin/firefox -marionette --headless -foreground -no-remote -profile /tmp/rust_mozprofilerYSIK2```
+  * Tested with:
+    * Browser Version: v76.0.1
+    * Browser Version: v77.0.1
+  * Webdriver Version(geckodriver): v0.26.0
 
 ## Installation
 Install the requirements using pip (preferably in a virtualenv):
@@ -78,7 +79,7 @@ required arguments:
   -u USERNAME,  --username USERNAME   username of the user to be authenticated
   -p PASSWORD,  --password PASSWORD   password of the user to be authenticated
   -f FIREFOX,   --firefox FIREFOX     firefox binary full path
-  -i IDENTITY,  --idp IDENTITY        entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth
+  -i IDENTITY,  --idp IDENTITY        CSV List of entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
   -s SERVICE,   --sp SERVICE          full URL of the Service Provider's authentication link the probe will test.
 ```
 #### CLI command

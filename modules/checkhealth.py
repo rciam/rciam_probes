@@ -3,7 +3,7 @@
 
 import argparse
 import sys
-import time
+import time as t
 import re
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
@@ -78,7 +78,7 @@ class RciamHealthCheck:
 
     def __start_ticking(self):
         """Start timing"""
-        self.__start_time = time.time()
+        self.__start_time = t.time()
 
     def __stop_ticking(self):
         """
@@ -89,24 +89,27 @@ class RciamHealthCheck:
         if not self.__start_time:
             return -1
 
-        return time.time() - self.__start_time
+        return t.time() - self.__start_time
 
     def __sp_redirect_disco_n_click(self):
         """Discovery Service View"""
         self.__browser.get(self.__args.service)
-        # Log the title of the view
-        self.__logger.debug(self.__browser.title)
-        # urlencode idpentityid
-        idp_entity_id_url_enc = quote(self.__args.identity, safe='')
-        selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
-        # Find the hyperlink
-        self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
-        # Wait until it is clickable
-        self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
-        self.__wait_for_spinner()
-        self.__hide_cookie_policy()
-        # Select IdP defined in the params
-        self.__browser.find_element_by_css_selector(selector_callable).click()
+        # In case i have a list of hops
+        idp_list = self.__args.identity.split(',')
+        for idp in idp_list:
+            # Log the title of the view
+            self.__logger.debug(self.__browser.title)
+            # urlencode idpentityid
+            idp_entity_id_url_enc = quote(idp, safe='')
+            selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
+            # Find the hyperlink
+            self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
+            # Wait until it is clickable
+            self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
+            self.__wait_for_spinner()
+            self.__hide_cookie_policy()
+            # Select IdP defined in the params
+            self.__browser.find_element_by_css_selector(selector_callable).click()
 
     def __accept_all_ssp_modules(self):
         """
@@ -259,8 +262,9 @@ def parse_arguments(args):
     parser.add_argument('--sp', '-s', dest="service",
                         help='Service Provider Login, e.g. https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp',
                         required=True)
-    parser.add_argument('--idp', '-i', dest="identity", help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
-                        required=True)
+    parser.add_argument('--idp', '-i', dest="identity",
+                        help='List of AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth,https://egi.eu/idp/shibboleth',
+                        default=EGIDefaults.EGISSOIdp.value)
 
     return parser.parse_args(args)
 
