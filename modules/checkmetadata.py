@@ -20,14 +20,11 @@ class RciamMetadataCheck:
         self.__args = parse_arguments(args)
         self.__logger = configure_logger(self.__args)
 
-    def get_nagios_status_n_code(self, expiration_days, certData):
+    def get_nagios_status_n_code(self, expiration_days):
         """
         Return the status and the exit code  needed by Nagios
         :param expiration_days: Days remaining for the certificate to expire
         :type expiration_days: int
-
-        :param certData: Attributes of the Certificate after translation
-        :type certData: dict
 
         :return: status, code NastiosStatusCode value and exit code
         :rtype: NagiosStatusCode, int
@@ -65,8 +62,10 @@ class RciamMetadataCheck:
                 msg_list = []
                 for ctype, value in x509_dict.items():
                     expiration_days, certData = evaluate_single_certificate(value)
-                    status, code = self.get_nagios_status_n_code(expiration_days, certData)
-                    msg_list.append(cert_health_check_all_tmpl.substitute(type=ctype, status=status))
+                    status, code = self.get_nagios_status_n_code(expiration_days)
+                    msg_list.append(cert_health_check_all_tmpl.substitute(defaults_cert_health_check_all,
+                                                                          type=ctype,
+                                                                          status=status))
                     self.__ncode = [self.__ncode, code][self.__ncode < code]
                 separator = ', '
                 self.__msg = separator.join(msg_list)
@@ -76,9 +75,10 @@ class RciamMetadataCheck:
 
             else:
                 expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0])
-                status, code = self.get_nagios_status_n_code(expiration_days, certData)
+                status, code = self.get_nagios_status_n_code(expiration_days)
                 self.__ncode = code
-                self.__msg = cert_health_check_tmpl.substitute(type=self.__args.ctype,
+                self.__msg = cert_health_check_tmpl.substitute(defaults_cert_health_check,
+                                                               type=self.__args.ctype,
                                                                status=status,
                                                                subject=certData['Subject']['CN'],
                                                                issuer=certData['Issuer']['CN'],

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import urllib3
+import requests
 import xmltodict
 from OpenSSL import crypto
 from datetime import datetime
@@ -60,10 +60,9 @@ def get_xml(url):
 
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
-    http = urllib3.PoolManager()
-    response = http.request('GET', url)
-    data = xmltodict.parse(response.data)
-    return data
+    requests.packages.urllib3.disable_warnings()
+    response = requests.get(url, verify=False)
+    return xmltodict.parse(response.text)
 
 
 def gen_dict_extract(var, key):
@@ -119,7 +118,7 @@ def fetch_cert_from_type(metadata_dict, cert_type):
                     'ds:X509Certificate')
                 return x509_dict
                 # If no Certificate available raise an exception
-        raise Exception("No X509 certificate of type:%s found" % (cert_type))
+        raise Exception("No X509 certificate of type:%s found" % cert_type)
     except Exception as e:
         # Log the title of the view
         raise Exception(e.args[0]) from e
