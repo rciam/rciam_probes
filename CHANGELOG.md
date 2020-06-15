@@ -6,17 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.4] - 2020-06-11
 ### Added
-- Metadata Health by Certificate type(signing, encryption, all)
-- Login Health(SAML, OIDC)
-- Added Jenkinsfile
+- Login Health(SAML) over Basic Authentication
 
 ### Fixed
-- Unknown type returned in case of no @use key
-- Empty message in raise Exception
-- Process Explicit Consent prompt by the Identity Provider
-- Fixed wrong url evaluation of Service landing page
-- No SSP modules present
-- Multi Discovery Service hops
 
 ### Changed
 
