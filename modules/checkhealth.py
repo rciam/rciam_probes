@@ -257,18 +257,22 @@ def parse_arguments(args):
     parser = argparse.ArgumentParser(description="Health Check Probe for RCIAM")
 
     parser.add_argument('--username', '-u', dest="username", help='IdP username', required=True)
-    parser.add_argument('--password', '-p', dest="password", help='Idp password', required=True)
+    parser.add_argument('--password', '-a', dest="password", help='Idp password', required=True)
     parser.add_argument('--firefox', '-f', dest="firefox", help='Firefox binary full path', required=True)
-    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default= LoggingDefaults.LOG_FILE.value)
-    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity', choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
+    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
+                        choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--port', '-p', dest="port", help='Set service port',
+                        choices=[80, 443], default=443, type=int)
     parser.add_argument('--delay', '-d', dest="delay", help='Maximum delay threshold when loading web page document',
                         type=int, default=10)
     parser.add_argument('--sp', '-s', dest="service",
-                        help='Service Provider Login, e.g. https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp',
+                        help='Service Provider Login, e.g. https://example.com/ssp/module.php/core/authenticate.php?as=example-sp',
                         required=True)
-    parser.add_argument('--idp', '-i', dest="identity",
-                        help='List of AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth,https://egi.eu/idp/shibboleth',
-                        default=EGIDefaults.EGISSOIdp.value)
+    parser.add_argument('--idp', '-i', dest="identity", help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
+                        required=True)
+    parser.add_argument('--hostname', '-H', dest="hostname", required=True,
+                        help='Domain, protocol assumed to be https, e.g. example.com')
 
     return parser.parse_args(args)
 

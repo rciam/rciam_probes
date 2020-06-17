@@ -15,10 +15,18 @@ class RciamMetadataCheck:
     __args = None
     __msg = ''
     __ncode = -1
+    __url = None
+    __protocol = None
 
     def __init__(self, args=sys.argv[1:]):
         self.__args = parse_arguments(args)
         self.__logger = configure_logger(self.__args)
+        self.__protocol = 'http' if self.__args.port == 80 else 'https'
+        self.__url =  self.__protocol +\
+                      '://' + self.__args.hostname +\
+                      '/' + self.__args.endpoint
+        self.__logger.info('Metadata URL: %s' % (self.__url))
+
 
     def get_nagios_status_n_code(self, expiration_days):
         """
@@ -28,6 +36,7 @@ class RciamMetadataCheck:
 
         :return: status, code NastiosStatusCode value and exit code
         :rtype: NagiosStatusCode, int
+        todo: move to utils.py
         """
         if expiration_days > self.__args.warning:
             status = NagiosStatusCode.OK.name
@@ -46,25 +55,20 @@ class RciamMetadataCheck:
         return status, code
 
     def check_cert(self):
-        """Check metadata's certificate"""
-        if not self.__args.url:
-            self.__logger.error("URL not found. Please provide metadata URL")
-            exit(NagiosStatusCode.UNKNOWN.value)
-
         # log my running command
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
 
         try:
-            metadata_dict = get_xml(self.__args.url)
+            metadata_dict = get_xml(self.__url)
             # Find the certificate by type
-            x509_dict = fetch_cert_from_type(metadata_dict, self.__args.ctype)
+            x509_dict = fetch_cert_from_type(metadata_dict, self.__args.certuse)
             if len(x509_dict) > 1:
                 msg_list = []
-                for ctype, value in x509_dict.items():
+                for certuse, value in x509_dict.items():
                     expiration_days, certData = evaluate_single_certificate(value)
                     status, code = self.get_nagios_status_n_code(expiration_days)
                     msg_list.append(cert_health_check_all_tmpl.substitute(defaults_cert_health_check_all,
-                                                                          type=ctype,
+                                                                          type=certuse,
                                                                           status=status))
                     self.__ncode = [self.__ncode, code][self.__ncode < code]
                 separator = ', '
@@ -72,13 +76,12 @@ class RciamMetadataCheck:
                 # Add the performance data
                 self.__msg += " | 'SSL Metadata Cert Status'=" + str(self.__ncode)
 
-
             else:
                 expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0])
                 status, code = self.get_nagios_status_n_code(expiration_days)
                 self.__ncode = code
                 self.__msg = cert_health_check_tmpl.substitute(defaults_cert_health_check,
-                                                               type=self.__args.ctype,
+                                                               type=self.__args.certuse,
                                                                status=status,
                                                                subject=certData['Subject']['CN'],
                                                                issuer=certData['Issuer']['CN'],
@@ -108,17 +111,21 @@ def parse_arguments(args):
     :return: argument object
     :rtype: ArgumentParser
     """
-    parser = argparse.ArgumentParser(description="Cert Check Probe for RCIAM")  # type: ArgumentParser
+    parser = argparse.ArgumentParser(description="Cert Check Probe for RCIAM")
 
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
                         choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--port', '-p', dest="port", help='Set service port',
+                        choices=[80, 443], default=443, type=int)
     parser.add_argument('--warning', '-w', dest="warning", help='Warning threshold', type=int, default=30)
     parser.add_argument('--critical', '-c', dest="critical", help='Critical threshold', type=int, default=10)
-    parser.add_argument('--ctype', '-t', dest="ctype", help='Certificate type', default='signing',
+    parser.add_argument('--certuse', '-s', dest="certuse", help='Certificate Use', default='signing',
                         choices=['signing', 'encryption', 'all'])
-    parser.add_argument('--url', '-u', dest="url", required=True,
-                        help='Metadata URL, e.g. https://example.com/saml2IDp/proxy.xml')
+    parser.add_argument('--hostname', '-H', dest="hostname", required=True,
+                        help='Domain, protocol assumed to be https, e.g. example.com')
+    parser.add_argument('--endpoint', '-e', dest="endpoint", required=True,
+                        help='Metadata endpoint, e.g. proxy/saml2/idp/metadata.php')
 
     return parser.parse_args(args)
 
