@@ -68,7 +68,7 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ### Login Health
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE]
-          [-d DELAY] [-v VERBOSE] [-l LOG]
+          [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME]
 
 optional arguments:
   -h, --help                          show this help message and exit
@@ -82,11 +82,12 @@ required arguments:
   -f FIREFOX,   --firefox FIREFOX     firefox binary full path
   -i IDENTITY,  --idp IDENTITY        CSV List of entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
   -s SERVICE,   --sp SERVICE          full URL of the Service Provider's authentication link the probe will test.
+  -H HOSTNAME,  --hostname HOSTNAME   domain name of the service
 ```
 #### CLI command
 ```bash
 sample command: checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp
-                           -i https://idp.admin.grnet.gr/idp/shibboleth
+                           -i https://idp.admin.grnet.gr/idp/shibboleth -H example.com
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
