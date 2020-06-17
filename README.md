@@ -39,28 +39,29 @@ make sources
 ## Usage
 ### Metadata Health
 ```bash
-checkcert [-h] [-w WARNING] [-c CRITICAL] [-u URL] [-t ctype] [-l LOG] [-v VERBOSE]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE]
 
 optional arguments:
   -h, --help                          show this help message and exit
   -c CRITICAL,  --critical CRITICAL   remaining days threshold for critical
   -w WARNING,   --warning WARNING     remaining days threshold for warning
-  -t CTYPE,     --ctype CTYPE         type of certificate {signing, encryption, all}
+  -s CERTUSE,   --certuse CERTUSE     type of certificate {signing, encryption, all}
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
 
 required arguments:
-  -u URL,       --url URL             endpoint advertising the metadata
+  -H HOSTNAME,  --hostname HOSTNAME   domain name of the service
+  -e ENDPOINT,  --endpoint ENTPOINT   endpoint advertising the metadata
 ```
 #### CLI command
 ```bash
-sample command: checkcert -w 20 -c 10 -u http://example.com/service/Shibboleth.sso/Metadata -t signing
+sample command: checkcert -w 20 -c 10 -H example.com -e service/Shibboleth.sso/Metadata -t signing
 
 sample output:  SSL_CERT(signing) OK - x509 certificate 'test-eosc-hub.ggus.eu' from 'KIT-CA' is valid until 2022-05-17 10:00:00 (expires in 727 days) | 'SSL Metadata Cert'=727;20;10;0;3650
 ```
 For the case of type:all the output will be different
 ```bash
-sample command: checkcert -u https://aai.egi.eu/proxy/saml2/idp/metadata.php -w 20 -c 10 -t all
+sample command: checkcert -H example.com -e proxy/saml2/idp/metadata.php -w 20 -c 10 -t all
 
 sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Cert Status'=0
 ```
