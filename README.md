@@ -39,7 +39,7 @@ make sources
 ## Usage
 ### Metadata Health
 ```bash
-checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE] [-p PORT]
 
 optional arguments:
   -h, --help                          show this help message and exit
@@ -48,6 +48,7 @@ optional arguments:
   -s CERTUSE,   --certuse CERTUSE     type of certificate {signing, encryption, all}
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
+  -p PORT,      --port PORT           port the probe will target
 
 required arguments:
   -H HOSTNAME,  --hostname HOSTNAME   domain name of the service
@@ -68,17 +69,18 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ### Login Health
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE]
-          [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME]
+          [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
 
 optional arguments:
   -h, --help                          show this help message and exit
   -d DELAY,     --delay DELAY         number of seconds the probe will wait for the page to load
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
+  -p PORT,      --port PORT           port the probe will target
 
 required arguments:
   -u USERNAME,  --username USERNAME   username of the user to be authenticated
-  -p PASSWORD,  --password PASSWORD   password of the user to be authenticated
+  -a PASSWORD,  --password PASSWORD   password of the user to be authenticated
   -f FIREFOX,   --firefox FIREFOX     firefox binary full path
   -i IDENTITY,  --idp IDENTITY        CSV List of entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
   -s SERVICE,   --sp SERVICE          full URL of the Service Provider's authentication link the probe will test.

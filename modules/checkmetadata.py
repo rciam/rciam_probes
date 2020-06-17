@@ -16,11 +16,17 @@ class RciamMetadataCheck:
     __msg = ''
     __ncode = -1
     __url = None
+    __protocol = None
 
     def __init__(self, args=sys.argv[1:]):
         self.__args = parse_arguments(args)
         self.__logger = configure_logger(self.__args)
-        self.__url = 'https://' + self.__args.hostname + '/' + self.__args.endpoint
+        self.__protocol = 'http' if self.__args.port == 80 else 'https'
+        self.__url =  self.__protocol +\
+                      '://' + self.__args.hostname +\
+                      '/' + self.__args.endpoint
+        self.__logger.info('Metadata URL: %s' % (self.__url))
+
 
     def get_nagios_status_n_code(self, expiration_days):
         """
@@ -110,6 +116,8 @@ def parse_arguments(args):
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
                         choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--port', '-p', dest="port", help='Set service port',
+                        choices=[80, 443], default=443, type=int)
     parser.add_argument('--warning', '-w', dest="warning", help='Warning threshold', type=int, default=30)
     parser.add_argument('--critical', '-c', dest="critical", help='Critical threshold', type=int, default=10)
     parser.add_argument('--certuse', '-s', dest="certuse", help='Certificate Use', default='signing',

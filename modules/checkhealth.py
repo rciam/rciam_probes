@@ -257,10 +257,13 @@ def parse_arguments(args):
     parser = argparse.ArgumentParser(description="Health Check Probe for RCIAM")
 
     parser.add_argument('--username', '-u', dest="username", help='IdP username', required=True)
-    parser.add_argument('--password', '-p', dest="password", help='Idp password', required=True)
+    parser.add_argument('--password', '-a', dest="password", help='Idp password', required=True)
     parser.add_argument('--firefox', '-f', dest="firefox", help='Firefox binary full path', required=True)
-    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default= LoggingDefaults.LOG_FILE.value)
-    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity', choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
+    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
+                        choices=['debug', 'info', 'warning', 'error', 'critical'])
+    parser.add_argument('--port', '-p', dest="port", help='Set service port',
+                        choices=[80, 443], default=443, type=int)
     parser.add_argument('--delay', '-d', dest="delay", help='Maximum delay threshold when loading web page document',
                         type=int, default=10)
     parser.add_argument('--sp', '-s', dest="service",
