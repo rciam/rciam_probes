@@ -5,7 +5,6 @@ import argparse
 import sys
 from argparse import ArgumentParser
 # import methods from the lib directory
-from lib.enums import NagiosStatusCode, LoggingDefaults
 from lib.templates import *
 from lib.utils import *
 
@@ -27,33 +26,6 @@ class RciamMetadataCheck:
                       '/' + self.__args.endpoint
         self.__logger.info('Metadata URL: %s' % (self.__url))
 
-
-    def get_nagios_status_n_code(self, expiration_days):
-        """
-        Return the status and the exit code  needed by Nagios
-        :param expiration_days: Days remaining for the certificate to expire
-        :type expiration_days: int
-
-        :return: status, code NastiosStatusCode value and exit code
-        :rtype: NagiosStatusCode, int
-        todo: move to utils.py
-        """
-        if expiration_days > self.__args.warning:
-            status = NagiosStatusCode.OK.name
-            code = NagiosStatusCode.OK.value
-        elif self.__args.warning > expiration_days > self.__args.critical:
-            status = NagiosStatusCode.WARNING.name
-            code = NagiosStatusCode.WARNING.value
-        elif expiration_days < self.__args.critical:
-            status = NagiosStatusCode.CRITICAL.name
-            code = NagiosStatusCode.CRITICAL.value
-        else:
-            msg = "State" + NagiosStatusCode.UNKNOWN.name
-            self.__logger.info(msg)
-            code = NagiosStatusCode.UNKNOWN.value
-
-        return status, code
-
     def check_cert(self):
         # log my running command
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
@@ -66,7 +38,7 @@ class RciamMetadataCheck:
                 msg_list = []
                 for certuse, value in x509_dict.items():
                     expiration_days, certData = evaluate_single_certificate(value)
-                    status, code = self.get_nagios_status_n_code(expiration_days)
+                    status, code = get_nagios_status_n_code(expiration_days, self.__args.warning, self.__args.critical, self.__logger)
                     msg_list.append(cert_health_check_all_tmpl.substitute(defaults_cert_health_check_all,
                                                                           type=certuse,
                                                                           status=status))
@@ -78,7 +50,7 @@ class RciamMetadataCheck:
 
             else:
                 expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0])
-                status, code = self.get_nagios_status_n_code(expiration_days)
+                status, code = get_nagios_status_n_code(expiration_days, self.__args.warning, self.__args.critical, self.__logger)
                 self.__ncode = code
                 self.__msg = cert_health_check_tmpl.substitute(defaults_cert_health_check,
                                                                type=self.__args.certuse,
