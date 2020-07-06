@@ -69,7 +69,7 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ### Login Health
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE] [-b|--basic_auth]
-          [-d DELAY] [-v VERBOSE] [-l LOG]
+          [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
 
 optional arguments:
   -h, --help                          show this help message and exit
@@ -91,14 +91,14 @@ required arguments:
 ## Form Based Logins
 ```bash
 sample command: checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
-                           -i https://idp.example.com/idp/shibboleth
+                           -i https://idp.example.com/idp/shibboleth -H example.com
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
 ## Basic Authentication Logins
 ```bash
-sample command: checklogin -s https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
-                            -f /usr/bin/firefox -v debug -d 20 -u $USER -p $PASSWORD --basic_auth
+example.comsample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
+                            -f /usr/bin/firefox -v debug -d 20 -u $USER -a $PASSWORD --basic_auth
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```

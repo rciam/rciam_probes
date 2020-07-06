@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.4] - 2020-06-11
 ### Added
 - Login Health(SAML) over Basic Authentication
+- Added [-H| --hostname] parameter for both checkmetadata and checkhealth
+- Added [-p| --port] parameter for both checkmetadata and checkhealth
+- Added [-b| --basic_auth] basic authentication login flow
 
 ### Fixed
 
 ### Changed
+- Password short parameter changed from -p to -a
+- Replaced [-u| --url] parameter with [-H| --hostname] and [-e| --endpoint]. Both of those are used to construct the metadata endpoint
 
 ### Removed
