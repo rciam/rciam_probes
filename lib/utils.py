@@ -6,6 +6,7 @@ import requests
 import xmltodict
 from OpenSSL import crypto
 from datetime import datetime
+import time as t
 from time import mktime, time, gmtime
 
 from lib.enums import LoggingDefaults, LoggingLevel
@@ -160,3 +161,20 @@ def evaluate_single_certificate(x509):
     expiration_days = (cert_expire - now).days
 
     return expiration_days, certData
+
+
+def start_ticking():
+    """Start timing"""
+    return t.time()
+
+
+def stop_ticking(tik_start):
+    """
+    Stop timing
+    :return: time in seconds, -1 if tik_start is None
+    :rtype: float
+    """
+    if not tik_start:
+        return -1
+
+    return t.time() - tik_start

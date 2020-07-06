@@ -4,7 +4,6 @@
 import argparse
 import re
 import sys
-import time as t
 from urllib.parse import *
 
 from selenium import webdriver
@@ -83,22 +82,6 @@ class RciamHealthCheck:
         for row in user_attributes:
             columns = row.find_all('td')
             self.__logger.info("%s(Attribute) => %s" % (columns[0].find('tt').text, columns[1].text))
-
-    def __start_ticking(self):
-        """Start timing"""
-        self.__start_time = t.time()
-
-    def __stop_ticking(self):
-        """
-        todo: move to utils
-        Stop timing
-        :return: time in seconds, -1 if __start_time is None
-        :rtype: float
-        """
-        if not self.__start_time:
-            return -1
-
-        return t.time() - self.__start_time
 
     def __sp_redirect_disco_n_click(self):
         """Discovery Service View"""
@@ -262,8 +245,8 @@ class RciamHealthCheck:
     def check_login(self):
         """Check the login flow"""
         # Find the password argument and remove it
-        if '-p' in sys.argv:
-            pass_index = sys.argv.index('-p')
+        if '-a' in sys.argv:
+            pass_index = sys.argv.index('-a')
             del sys.argv[pass_index:pass_index + 2]
         elif '--password' in sys.argv:
             pass_index = sys.argv.index('--password')
@@ -271,7 +254,7 @@ class RciamHealthCheck:
 
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
         # start counting progress time
-        self.__start_ticking()
+        self.__start_time = start_ticking()
         try:
             # Go to Discovery Service and choose your Identity Provider
             self.__sp_redirect_disco_n_click()
@@ -285,7 +268,7 @@ class RciamHealthCheck:
             # Verify that the SPs home page loaded
             self.__verify_sp_home_page_loaded()
             code = NagiosStatusCode.OK.value
-            msg = login_health_check_tmpl.substitute(defaults_login_health_check, time=round(self.__stop_ticking(), 2))
+            msg = login_health_check_tmpl.substitute(defaults_login_health_check, time=round(stop_ticking(self.__start_time), 2))
         except TimeoutException:
             msg = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
             # Log print here
