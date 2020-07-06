@@ -9,7 +9,7 @@ from datetime import datetime
 import time as t
 from time import mktime, time, gmtime
 
-from lib.enums import LoggingDefaults, LoggingLevel
+from lib.enums import LoggingDefaults, LoggingLevel, NagiosStatusCode
 
 
 def configure_logger(args):
@@ -178,3 +178,39 @@ def stop_ticking(tik_start):
         return -1
 
     return t.time() - tik_start
+
+
+def get_nagios_status_n_code(var_chk, warning_th, critical_th, logger=None):
+    """
+    Return the status and the exit code  needed by Nagios
+    :param var_chk: Value to check
+    :type var_chk: int
+
+    :param warning_th: Warning threshold
+    :type warning_th: int
+
+    :param critical_th: Critical threshold
+    :type critical_th: int
+
+    :param logger: Logger object. Pass if you want to log
+    :type Logger: Logger Object
+
+    :return: status, code NagiosStatusCode value and exit code
+    :rtype: NagiosStatusCode, int
+    """
+    if var_chk > warning_th:
+        status = NagiosStatusCode.OK.name
+        code = NagiosStatusCode.OK.value
+    elif warning_th > var_chk > critical_th:
+        status = NagiosStatusCode.WARNING.name
+        code = NagiosStatusCode.WARNING.value
+    elif var_chk < critical_th:
+        status = NagiosStatusCode.CRITICAL.name
+        code = NagiosStatusCode.CRITICAL.value
+    else:
+        msg = "State" + NagiosStatusCode.UNKNOWN.name
+        if logger is not None:
+            logger.info(msg)
+        code = NagiosStatusCode.UNKNOWN.value
+
+    return status, code
