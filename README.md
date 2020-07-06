@@ -68,7 +68,7 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ```
 ### Login Health
 ```bash
-checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE]
+checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE] [-b|--basic_auth]
           [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
 
 optional arguments:
@@ -77,19 +77,28 @@ optional arguments:
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
   -p PORT,      --port PORT           port the probe will target
+  -b,           --basic_auth          Login flow with Basic Authentication
 
 required arguments:
   -u USERNAME,  --username USERNAME   username of the user to be authenticated
   -a PASSWORD,  --password PASSWORD   password of the user to be authenticated
   -f FIREFOX,   --firefox FIREFOX     firefox binary full path
-  -i IDENTITY,  --idp IDENTITY        CSV List of entityID URL of the identity provider, e.g. https://idp.admin.grnet.gr/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
+  -i IDENTITY,  --idp IDENTITY        CSV List of entityID URL of the identity provider, e.g. https://idp.example.com/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
   -s SERVICE,   --sp SERVICE          full URL of the Service Provider's authentication link the probe will test.
   -H HOSTNAME,  --hostname HOSTNAME   domain name of the service
 ```
 #### CLI command
+## Form Based Logins
 ```bash
-sample command: checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://snf-666522.vm.okeanos.grnet.gr/ssp/module.php/core/authenticate.php?as=egi-sp
-                           -i https://idp.admin.grnet.gr/idp/shibboleth -H example.com
+sample command: checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
+                           -i https://idp.example.com/idp/shibboleth -H example.com
+
+sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
+```
+## Basic Authentication Logins
+```bash
+example.comsample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
+                            -f /usr/bin/firefox -v debug -d 20 -u $USER -a $PASSWORD --basic_auth
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```

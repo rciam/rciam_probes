@@ -6,18 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.4] - 2020-06-11
 ### Added
-- Metadata Health by Certificate type(signing, encryption, all)
-- Login Health(SAML, OIDC)
-- Added Jenkinsfile
+- Login Health(SAML) over Basic Authentication
+- Added [-H| --hostname] parameter for both checkmetadata and checkhealth
+- Added [-p| --port] parameter for both checkmetadata and checkhealth
+- Added [-b| --basic_auth] basic authentication login flow
 
 ### Fixed
-- Unknown type returned in case of no @use key
-- Empty message in raise Exception
-- Process Explicit Consent prompt by the Identity Provider
-- Fixed wrong url evaluation of Service landing page
-- No SSP modules present
-- Multi Discovery Service hops
 
 ### Changed
+- Password short parameter changed from -p to -a
+- Replaced [-u| --url] parameter with [-H| --hostname] and [-e| --endpoint]. Both of those are used to construct the metadata endpoint
 
 ### Removed

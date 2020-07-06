@@ -13,6 +13,17 @@ class LoggingLevel(Enum):
     error = 40
     critical = 50
 
+class EGIDefaults(Enum):
+    ServiceAccountIdp = "https://login.ics.muni.cz/idp/shibboleth"
+    EGISSOIdp = "https://www.egi.eu/idp/shibboleth"
+
+
 class LoggingDefaults(Enum):
     LOG_FILE = "../var/logs/rciam_probes.log" # Path relative to root of the project
     LOG_FORMATTER = "%(asctime)s %(processName)s[%(process)d]: %(levelname)s: %(filename)s[%(funcName)s] - %(message)s"
+
+
+class AuthenticateTxt(Enum):
+    Success = "Authentication Succeeded"
+    Failed = "Authentication Failed"
+    AlertFailed = "Authentication with Alert failed."

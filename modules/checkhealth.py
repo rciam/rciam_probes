@@ -2,46 +2,54 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import re
 import sys
 import time as t
-import re
-from selenium import webdriver
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-from bs4 import BeautifulSoup
 from urllib.parse import *
 
+from selenium import webdriver
+from selenium.common.exceptions import *
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+
+from lib.authentication import *
 # import methods from the lib directory
-from lib.enums import NagiosStatusCode, LoggingDefaults
+from lib.enums import *
 from lib.templates import *
-from lib.utils import configure_logger
+from lib.utils import *
 
 
 class RciamHealthCheck:
     __browser = None
+    __last_url = None
+    __cached_cookies = None
     __options = None
     __wait = None
     __start_time = None
     __args = None
     __nagios_msg = None
     __logger = None
+    __firefox_binary = None
 
     def __init__(self, args=sys.argv[1:]):
         """Initialize"""
         self.__args = parse_arguments(args)
+
         # configure the logger
         self.__logger = configure_logger(self.__args)
         # configure the web driver
-        options = webdriver.FirefoxOptions()
-        options.add_argument('--headless')
-        firefox_binary = FirefoxBinary(self.__args.firefox)
+        self.__init_browser()
+
+    def __init_browser(self):
+        """ configure the web driver """
+        self.__options = webdriver.FirefoxOptions()
+        self.__options.headless = True
+        self.__options.accept_insecure_certs = True
+        self.__firefox_binary = FirefoxBinary(self.__args.firefox)
         if self.__browser is not None:
             self.__browser.close()
-        self.__browser = webdriver.Firefox(options=options,
-                                           firefox_binary=firefox_binary,
+        self.__browser = webdriver.Firefox(options=self.__options,
+                                           firefox_binary=self.__firefox_binary,
                                            executable_path=r'../driver/geckodriver',
                                            log_path=self.__args.log)
         self.__wait = WebDriverWait(self.__browser, self.__args.delay)
@@ -82,6 +90,7 @@ class RciamHealthCheck:
 
     def __stop_ticking(self):
         """
+        todo: move to utils
         Stop timing
         :return: time in seconds, -1 if __start_time is None
         :rtype: float
@@ -108,6 +117,8 @@ class RciamHealthCheck:
             self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
             self.__wait_for_spinner()
             self.__hide_cookie_policy()
+            # Cache cookies
+            self.__cached_cookies = self.__browser.get_cookies()
             # Select IdP defined in the params
             self.__browser.find_element_by_css_selector(selector_callable).click()
 
@@ -135,6 +146,7 @@ class RciamHealthCheck:
                     self.__wait_for_spinner()
                     self.__hide_cookie_policy()
                     continue_btn.click()
+                    self.__cached_cookies = self.__browser.get_cookies()
             except TimeoutException:
                 self.__logger.info('No simplesamlPHP modules found. Continue...')
                 ssp_modules = False
@@ -144,23 +156,62 @@ class RciamHealthCheck:
         Authenticate to IdP
         - Selenium does not return http status codes. Related
           issue(https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/141)
+
+        - Proxy Response: State information lost, and no way to restart the request
+        This error may be caused by:
+            Using the back and forward buttons in the web browser.
+            Opened the web browser with tabs saved from the previous session.
+            Cookies may be disabled in the web browser.
+        note: We should not close and re-open the browser driver.
+
         :raises TimeoutException: if the elements fail to load
         """
-        self.__wait.until(EC.presence_of_element_located((By.ID, 'username')))
-        username = self.__browser.find_element_by_id('username')
-        username.clear()
-        username.send_keys(self.__args.username)
-        self.__wait.until(EC.presence_of_element_located((By.ID, 'password')))
-        password = self.__browser.find_element_by_id('password')
-        password.clear()
-        password.send_keys(self.__args.password)
+        if self.__args.basic_auth:
+            # todo: Revisit the implementation approach if there is a solution with browser drivers
+            try:
+                self.__wait.until(EC.alert_is_present())
+                self.__logger.debug(self.__browser.current_url)
+                alert = self.__browser.switch_to.alert
+                alert.send_keys(self.__args.username)
+                alert.send_keys(Keys.TAB)
+                alert.send_keys(self.__args.password)
+                alert.accept()
+            except Exception as e:
+                # Tried to authenticate with the alert but failed
+                # Trying again with request library in finally
+                self.__logger.info(AuthenticateTxt.AlertFailed.value)
+            else:
+                self.__logger.info(AuthenticateTxt.Success.value)
+            finally:
+                self.__last_url = self.__browser.current_url
+                self.__last_url = base_auth_login(self.__browser.current_url,
+                                                  self.__args,
+                                                  self.__cached_cookies,
+                                                  self.__logger)
+                # Load the cookies from Identity Provider authentication
+                browser_load_cookies(self.__browser,
+                                     self.__cached_cookies,
+                                     self.__last_url)
+                # Retry with proxy
+                self.__browser.get(self.__last_url)
+        else:
+            self.__wait.until(EC.presence_of_element_located((By.ID, 'username')))
+            username = self.__browser.find_element_by_id('username')
+            username.clear()
+            username.send_keys(self.__args.username)
+            self.__wait.until(EC.presence_of_element_located((By.ID, 'password')))
+            password = self.__browser.find_element_by_id('password')
+            password.clear()
+            password.send_keys(self.__args.password)
 
-        # Log the title of the view
-        self.__logger.debug(self.__browser.title)
-        self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']")))
-        # Accept the form
-        self.__browser.find_element_by_css_selector("form button[type='submit']").click()
-        # Get the source code from the page and check if authentication failed
+            # Log the title of the view
+            self.__logger.debug(self.__browser.title)
+            self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']")))
+            # Cache cookies
+            self.__last_url = self.__browser.current_url
+            self.__cached_cookies = self.__browser.get_cookies()
+            # Accept the form
+            self.__browser.find_element_by_css_selector("form button[type='submit']").click()
 
     def __idp_shib_consent_page(self):
         """
@@ -175,9 +226,13 @@ class RciamHealthCheck:
             domain = re.search(regex_domain, self.__args.identity).group(1)
             # Only wait at most 5 seconds.
             WebDriverWait(self.__browser, 5).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
-            WebDriverWait(self.__browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Accept']")))
+            WebDriverWait(self.__browser, 5).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Accept']")))
             # Log the title of the view
             self.__logger.debug(self.__browser.title)
+            # Cache cookies
+            self.__cached_cookies = self.__browser.get_cookies()
+            self.__last_url = self.__browser.current_url
             # Accept the form
             self.__browser.find_element_by_css_selector("form [type='submit'][value='Accept']").click()
             # Get the source code from the page and check if authentication failed
@@ -195,7 +250,8 @@ class RciamHealthCheck:
         Verify that the Service Providers Home page loaded successfully
         :raises TimeoutException: if an element fails to load
         """
-        self.__wait.until(lambda driver: self.__browser.current_url.strip('/').find(self.__args.service.strip('/')) == 0)
+        self.__wait.until(
+            lambda driver: self.__browser.current_url.strip('/').find(self.__args.service.strip('/')) == 0)
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "title")))
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
@@ -208,10 +264,10 @@ class RciamHealthCheck:
         # Find the password argument and remove it
         if '-p' in sys.argv:
             pass_index = sys.argv.index('-p')
-            del sys.argv[pass_index:pass_index+2]
+            del sys.argv[pass_index:pass_index + 2]
         elif '--password' in sys.argv:
             pass_index = sys.argv.index('--password')
-            del sys.argv[pass_index:pass_index+2]
+            del sys.argv[pass_index:pass_index + 2]
 
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
         # start counting progress time
@@ -222,16 +278,20 @@ class RciamHealthCheck:
             # Authenticate
             self.__idp_authenticate()
             # Some IdPs might request explicit consent for the transmitted attributes
-            # fixme: Currently supporting only Consent pages from Shibboleth IdPs
+            # todo: Currently supporting only Consent pages from Shibboleth IdPs
             self.__idp_shib_consent_page()
             # You came back from the Idp. Iterate over all SSP modules and press continue
             self.__accept_all_ssp_modules()
             # Verify that the SPs home page loaded
             self.__verify_sp_home_page_loaded()
             code = NagiosStatusCode.OK.value
-            msg = login_health_check_tmpl.substitute(time=round(self.__stop_ticking(), 2))
+            msg = login_health_check_tmpl.substitute(defaults_login_health_check, time=round(self.__stop_ticking(), 2))
         except TimeoutException:
             msg = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
+            # Log print here
+            code = NagiosStatusCode.UNKNOWN.value
+        except ErrorInResponseException:
+            msg = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
         except Exception as e:
@@ -264,6 +324,9 @@ def parse_arguments(args):
                         choices=['debug', 'info', 'warning', 'error', 'critical'])
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
                         choices=[80, 443], default=443, type=int)
+    parser.add_argument('--basic_auth', '-b', dest="basic_auth",
+                        help='No Value needed. The precense of the flag indicates login test of Service Account',
+                        action='store_true')
     parser.add_argument('--delay', '-d', dest="delay", help='Maximum delay threshold when loading web page document',
                         type=int, default=10)
     parser.add_argument('--sp', '-s', dest="service",
@@ -275,6 +338,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
 
     return parser.parse_args(args)
+
 
 # Entry point
 if __name__ == "__main__":
