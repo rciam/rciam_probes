@@ -97,7 +97,7 @@ sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
 ## Basic Authentication Logins
 ```bash
-example.comsample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
+sample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
                             -f /usr/bin/firefox -v debug -d 20 -u $USER -a $PASSWORD --basic_auth
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
