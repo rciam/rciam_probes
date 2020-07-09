@@ -19,7 +19,7 @@ class EGIDefaults(Enum):
 
 
 class LoggingDefaults(Enum):
-    LOG_FILE = "../var/logs/rciam_probes.log" # Path relative to root of the project
+    LOG_FILE = "../var/log/rciam_probes.log" # Path relative to root of the project
     LOG_FORMATTER = "%(asctime)s %(processName)s[%(process)d]: %(levelname)s: %(filename)s[%(funcName)s] - %(message)s"
 
 
