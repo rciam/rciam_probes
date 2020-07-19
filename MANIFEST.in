@@ -1,12 +1,2 @@
-graft src
-graft modules
-graft var
-graft lib
-graft driver
-
-include rciam_probes.spec
 include requirements.txt
 include README.md
-
-prune lib/__pycache__
-prune modules/__pycache__
