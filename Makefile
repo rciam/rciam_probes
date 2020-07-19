@@ -1,6 +1,5 @@
 PKGNAME=rciam_probes
-SPECFILE=${PKGNAME}.spec
-PKGVERSION=$(shell grep -s '^Version:' $(SPECFILE) | sed -e 's/Version: *//')
+PKGVERSION=$(shell grep -s '^__version__\s*=' setup.py | sed -e 's/^__version__\s*=\s*//')
 
 dist:
 	@echo "-- python build dist --"

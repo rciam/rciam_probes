@@ -21,7 +21,7 @@ class EGIDefaults(Enum):
 
 
 class LoggingDefaults(Enum):
-    LOG_FILE = str(Path(__file__).parent.parent.joinpath("tmp").joinpath("var").joinpath("log").joinpath("rciam_probes.log"))
+    LOG_FILE = str(Path(__file__).parent.parent.joinpath("local").joinpath("log").joinpath("rciam_probes.log"))
     LOG_FORMATTER = "%(asctime)s %(processName)s[%(process)d]: %(levelname)s: %(filename)s[%(funcName)s] - %(message)s"
 
 
