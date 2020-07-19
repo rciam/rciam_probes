@@ -1,43 +1,43 @@
 import sys
-from setuptools import setup
-import glob
+from setuptools import setup, find_packages
+from codecs import open
+from os import path
 
-NAME = 'rciam_probes'
-NAGIOSPLUGINS = '/usr/libexec/argo-monitoring/probes/rciam'
-
-def get_ver():
-    try:
-        for line in open(NAME + '.spec'):
-            if "Version:" in line:
-                return line.split()[1]
-    except IOError:
-        print("Make sure that %s is in directory" % (NAME + '.spec'))
-        sys.exit(1)
+__name__ = 'rciam'
+__version__ = '1.0.5'
 
 
-def data_files():
-    import os
-    if not os.path.isdir('/usr/libexec/'):
-        return []
-    return [(NAGIOSPLUGINS, glob.glob('src/*'))]
+here = path.abspath(path.dirname(__file__))
 
+# Get the long description from the README file
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
-setup(name=NAME,
-      version=get_ver(),
+# get the dependencies and installs
+with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
+    all_reqs = f.read().split('\n')
+
+install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
+dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startswith('git+')]
+
+setup(name=__name__,
+      version=__version__,
       license='Apache-2.0',
       author='ioigoume@admin.grnet.gr',
       author_email='ioigoume@admin.grnet.gr',
       description='Package includes probes for RCIAM',
+      classifiers=[
+          "Programming Language :: Python :: 3.5",
+          "License :: OSI Approved :: Apache Software License",
+          "Operating System :: OS Independent",
+      ],
       platforms='noarch',
-      long_description='''
-      This package includes probes for RCIAM.
-      Currently it supports the following components:
-        - Metadata Health
-        - Login Health
-      ''',
-      url='https://github.com/ioigoume/rciam_probes',
-      data_files=data_files(),
-      packages=['rciam_probes'],
-      package_dir={'rciam_probes': 'modules/'},
-      python_requires='~=3.5'
+      long_description=long_description,
+      long_description_content_type="text/markdown",
+      url='https://github.com/rciam/rciam_probes',
+      packages=find_packages(include=['probes','shared']),
+      scripts=["bin/checkcert", "bin/checklogin"],
+      python_requires='~=3.5',
+      install_requires=install_requires,
+      data_files=[('share/doc/rciam_probes', ['README.md', 'LICENSE', 'CHANGELOG.md'])]
       )

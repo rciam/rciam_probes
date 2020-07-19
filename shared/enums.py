@@ -1,4 +1,6 @@
 from enum import Enum
+from pathlib import Path
+
 
 class NagiosStatusCode(Enum):
     OK = 0
@@ -19,7 +21,7 @@ class EGIDefaults(Enum):
 
 
 class LoggingDefaults(Enum):
-    LOG_FILE = "../var/log/rciam_probes.log" # Path relative to root of the project
+    LOG_FILE = str(Path(__file__).parent.parent.joinpath("tmp").joinpath("var").joinpath("log").joinpath("rciam_probes.log"))
     LOG_FORMATTER = "%(asctime)s %(processName)s[%(process)d]: %(levelname)s: %(filename)s[%(funcName)s] - %(message)s"
 
 

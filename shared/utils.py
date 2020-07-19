@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+from pathlib import Path
 import requests
 import xmltodict
 from OpenSSL import crypto
@@ -9,7 +10,7 @@ from datetime import datetime
 import time as t
 from time import mktime, time, gmtime
 
-from lib.enums import LoggingDefaults, LoggingLevel, NagiosStatusCode
+from shared.enums import LoggingDefaults, LoggingLevel, NagiosStatusCode
 
 
 def configure_logger(args):
@@ -23,18 +24,21 @@ def configure_logger(args):
     # Set the logfile
     if not args.log:
         args.log = LoggingDefaults.LOG_FILE.value
+
     # Set the log verbosity
     if not args.verbose:
         args.verbose = LoggingLevel.info.value
     else:
         args.verbose = getattr(LoggingLevel, args.verbose).value
-    # Create the log file if not present
-    if not os.path.exists(args.log):
-        open(args.log, 'w').close()
 
     # Create the Logger
     logger = logging.getLogger(__name__)
     logger.setLevel(args.verbose)
+
+    # Create the log file if not exists
+    if not os.path.isfile(args.log):
+        logfile = Path(args.log)
+        logfile.touch(exist_ok=True)
 
     # Create the Handler for logging data to a file
     logger_handler = logging.FileHandler(args.log)
@@ -214,3 +218,8 @@ def get_nagios_status_n_code(var_chk, warning_th, critical_th, logger=None):
         code = NagiosStatusCode.UNKNOWN.value
 
     return status, code
+
+
+def get_project_root() -> Path:
+    """Returns project root folder."""
+    return Path(__file__).parent.parent

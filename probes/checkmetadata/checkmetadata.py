@@ -5,8 +5,8 @@ import argparse
 import sys
 from argparse import ArgumentParser
 # import methods from the lib directory
-from lib.templates import *
-from lib.utils import *
+from shared.templates import *
+from shared.utils import *
 
 
 class RciamMetadataCheck:

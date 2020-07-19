@@ -11,11 +11,11 @@ from selenium.common.exceptions import *
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
-from lib.authentication import *
+from shared.authentication import *
 # import methods from the lib directory
-from lib.enums import *
-from lib.templates import *
-from lib.utils import *
+from shared.enums import *
+from shared.templates import *
+from shared.utils import *
 
 
 class RciamHealthCheck:
@@ -47,9 +47,15 @@ class RciamHealthCheck:
         self.__firefox_binary = FirefoxBinary(self.__args.firefox)
         if self.__browser is not None:
             self.__browser.close()
+
+        # Get the full filepath of the geckodriver
+        gecko_file_path = get_project_root().rglob('geckodriver*')
+        gecko_file_path_str = str(list(gecko_file_path)[0])
+        self.__logger.debug(gecko_file_path_str)
+
         self.__browser = webdriver.Firefox(options=self.__options,
                                            firefox_binary=self.__firefox_binary,
-                                           executable_path=r'../driver/geckodriver',
+                                           executable_path=gecko_file_path_str,
                                            log_path=self.__args.log)
         self.__wait = WebDriverWait(self.__browser, self.__args.delay)
 
@@ -233,8 +239,12 @@ class RciamHealthCheck:
         Verify that the Service Providers Home page loaded successfully
         :raises TimeoutException: if an element fails to load
         """
+        # todo: Load a file here with what the function should expect. If not present run the default below
+        # todo: The file should be provided from the command line??
         self.__wait.until(
             lambda driver: self.__browser.current_url.strip('/').find(self.__args.service.strip('/')) == 0)
+        # self.__wait.until(
+        #     lambda driver: self.__browser.current_url.strip('/').find('https://testvm.agora.grnet.gr/ui') == 0)
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "title")))
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
@@ -313,9 +323,11 @@ def parse_arguments(args):
     parser.add_argument('--delay', '-d', dest="delay", help='Maximum delay threshold when loading web page document',
                         type=int, default=10)
     parser.add_argument('--sp', '-s', dest="service",
-                        help='Service Provider Login, e.g. https://example.com/ssp/module.php/core/authenticate.php?as=example-sp',
+                        help='Service Provider Login, e.g. https://example.com/ssp/module.php/core/authenticate.php'
+                             '?as=example-sp',
                         required=True)
-    parser.add_argument('--idp', '-i', dest="identity", help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
+    parser.add_argument('--idp', '-i', dest="identity",
+	                    help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
                         required=True)
     parser.add_argument('--hostname', '-H', dest="hostname", required=True,
                         help='Domain, protocol assumed to be https, e.g. example.com')

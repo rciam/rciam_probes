@@ -16,12 +16,13 @@ Currently it supports the following probes:
   * Webdriver Version(geckodriver): v0.26.0
 
 ## Installation
-Install the requirements using pip (preferably in a virtualenv):
+For testing and development install locally:
 ```bash
-$ pip3 install -r requirements.txt
+# Download, export and cd into the package
+$ pip3 install -e .
 ```
 
-Then use setup.py to install the program:
+For production use:
 ```bash
 $ python setup.py install
 ```
@@ -90,7 +91,7 @@ required arguments:
 #### CLI command
 ## Form Based Logins
 ```bash
-sample command: checklogin -d 20 -v debug -u $USER -p $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
+sample command: checklogin -d 20 -v debug -u $USER -a $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
                            -i https://idp.example.com/idp/shibboleth -H example.com
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
