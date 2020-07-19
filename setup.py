@@ -1,11 +1,9 @@
-import sys
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__name__ = 'rciam'
+__name__ = 'rciam_probes'
 __version__ = '1.0.5'
-
 
 here = path.abspath(path.dirname(__file__))
 
@@ -27,7 +25,9 @@ setup(name=__name__,
       author_email='ioigoume@admin.grnet.gr',
       description='Package includes probes for RCIAM',
       classifiers=[
+          "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
           "License :: OSI Approved :: Apache Software License",
           "Operating System :: OS Independent",
       ],
@@ -35,9 +35,8 @@ setup(name=__name__,
       long_description=long_description,
       long_description_content_type="text/markdown",
       url='https://github.com/rciam/rciam_probes',
-      packages=find_packages(include=['probes','shared']),
+      packages=find_packages(exclude=['tests', 'docs']),
       scripts=["bin/checkcert", "bin/checklogin"],
       python_requires='~=3.5',
-      install_requires=install_requires,
-      data_files=[('share/doc/rciam_probes', ['README.md', 'LICENSE', 'CHANGELOG.md'])]
+      install_requires=install_requires
       )

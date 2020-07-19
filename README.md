@@ -7,7 +7,7 @@ Currently it supports the following probes:
 * Login Health
 
 ## Requirements
-* Python 3.5
+* Python ~=3.5
 * Pip3
 * firefox: ```/usr/bin/firefox -marionette --headless -foreground -no-remote -profile /tmp/rust_mozprofilerYSIK2```
   * Tested with:

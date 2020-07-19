@@ -3,12 +3,13 @@ PKGVERSION=$(shell grep -s '^__version__\s*=' setup.py | sed -e 's/^__version__\
 
 dist:
 	@echo "-- python build dist --"
-	@python setup.py sdist
+	@python3 setup.py sdist
 	@ls -l dist
 	@mv dist/${PKGNAME}-${PKGVERSION}.tar.gz .
 
 srpm: dist
 	@echo "-- Building srpm --"
+	ls -l dist
 	@rpmbuild -ts --define='dist .el6' ${PKGNAME}-${PKGVERSION}.tar.gz
 
 rpm: dist
