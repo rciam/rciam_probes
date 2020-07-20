@@ -1,5 +1,6 @@
 PKGNAME=rciam_probes
 PKGVERSION=$(shell grep -s '^__version__\s*=' setup.py | sed -e 's/^__version__\s*=\s*//')
+.PHONY : clean
 
 dist:
 	@echo "-- python build dist --"
@@ -20,8 +21,7 @@ sources: dist
 
 clean:
 	@echo "-- Cleaning --"
-	@rm -f MANIFEST
 	@rm -rf dist
-	@rm -rf ./${PKGNAME}-${PKGVERSION}.tar.gz
+	@rm -rf ${PKGNAME}-${PKGVERSION}.tar.gz
 	@find . -name '${PKGNAME}.egg-info' -exec rm -fr {} +
 	@find . -name '${PKGNAME}.egg' -exec rm -f {} +

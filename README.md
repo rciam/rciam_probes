@@ -17,22 +17,23 @@ Currently it supports the following probes:
     * [Download](https://github.com/mozilla/geckodriver/releases) and install the driver in a directory accessible by the script.
 
 ## Installation
-Execute:
+Clone and install in local repository with venv
 ```bash
 $ python3 setup.py install
 # Now the log file is in ~/rciam_probes/log 
 ```
-
 Make rpm
 ```bash
 make rpm
 ```
-
 Make tarball
 ```bash
 make sources
 ```
-
+Clean Make leftovers
+```bash
+make clean
+```
 ## Usage
 ### Metadata Health
 ```bash
