@@ -4,7 +4,6 @@
 import argparse
 import re
 import sys
-import pkg_resources
 from urllib.parse import *
 
 from selenium import webdriver
@@ -30,6 +29,7 @@ class RciamHealthCheck:
     __nagios_msg = None
     __logger = None
     __firefox_binary = None
+    __geckodriver_binary = None
 
     def __init__(self, args=sys.argv[1:]):
         """Initialize"""
@@ -45,18 +45,21 @@ class RciamHealthCheck:
         self.__options = webdriver.FirefoxOptions()
         self.__options.headless = True
         self.__options.accept_insecure_certs = True
+        self.__geckodriver_binary = self.__args.geckodriver
         self.__firefox_binary = FirefoxBinary(self.__args.firefox)
         if self.__browser is not None:
             self.__browser.close()
 
         # Get the full filepath of the geckodriver
-        gecko_file_path = Path(get_package_root()).rglob('geckodriver*')
-        gecko_file_path_str = str(list(gecko_file_path)[0])
-        self.__logger.debug(gecko_file_path_str)
+        # note: this will work for development, that's why i am keeping the geckodriver in the package code
+        if not Path(get_package_root()).is_file():
+            gecko_file_path = Path(get_package_root()).rglob('geckodriver*')
+            gecko_file_path_str = str(list(gecko_file_path)[0])
+            self.__logger.debug(gecko_file_path_str)
 
         self.__browser = webdriver.Firefox(options=self.__options,
                                            firefox_binary=self.__firefox_binary,
-                                           executable_path=gecko_file_path_str,
+                                           executable_path=self.__geckodriver_binary,
                                            log_path=self.__args.log)
         self.__wait = WebDriverWait(self.__browser, self.__args.delay)
 
@@ -313,6 +316,7 @@ def parse_arguments(args):
     parser.add_argument('--username', '-u', dest="username", help='IdP username', required=True)
     parser.add_argument('--password', '-a', dest="password", help='Idp password', required=True)
     parser.add_argument('--firefox', '-f', dest="firefox", help='Firefox binary full path', required=True)
+    parser.add_argument('--geckodriver', '-g', dest="geckodriver", help='geckodriver binary full path', required=True)
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
                         choices=['debug', 'info', 'warning', 'error', 'critical'])

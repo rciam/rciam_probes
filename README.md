@@ -14,6 +14,7 @@ Currently it supports the following probes:
     * Browser Version: v76.0.1
     * Browser Version: v77.0.1
   * Webdriver Version(geckodriver): v0.26.0
+    * [Download](https://github.com/mozilla/geckodriver/releases) and install the driver in a directory accessible by the script.
 
 ## Installation
 Execute:
@@ -68,33 +69,34 @@ checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVI
           [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
 
 optional arguments:
-  -h, --help                          show this help message and exit
-  -d DELAY,     --delay DELAY         number of seconds the probe will wait for the page to load
-  -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
-  -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
-  -p PORT,      --port PORT           port the probe will target
-  -b,           --basic_auth          Login flow with Basic Authentication
+  -h, --help                                   show this help message and exit
+  -d DELAY,        --delay DELAY               number of seconds the probe will wait for the page to load
+  -v VERBOSE,      --verbose VERBOSE           level of verboseness in log messages {debug,info,warning,error,critical}
+  -l LOG,          --log LOG                   the logfile the probe will use to append its messages, provide full path
+  -p PORT,         --port PORT                 port the probe will target
+  -b,              --basic_auth                Login flow with Basic Authentication
 
 required arguments:
-  -u USERNAME,  --username USERNAME   username of the user to be authenticated
-  -a PASSWORD,  --password PASSWORD   password of the user to be authenticated
-  -f FIREFOX,   --firefox FIREFOX     firefox binary full path
-  -i IDENTITY,  --idp IDENTITY        CSV List of entityID URL of the identity provider, e.g. https://idp.example.com/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
-  -s SERVICE,   --sp SERVICE          full URL of the Service Provider's authentication link the probe will test.
-  -H HOSTNAME,  --hostname HOSTNAME   domain name of the service
+  -u USERNAME,     --username USERNAME         username of the user to be authenticated
+  -a PASSWORD,     --password PASSWORD         password of the user to be authenticated
+  -f FIREFOX,      --firefox FIREFOX           firefox binary full path
+  -i IDENTITY,     --idp IDENTITY              CSV List of entityID URL of the identity provider, e.g. https://idp.example.com/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
+  -s SERVICE,      --sp SERVICE                full URL of the Service Provider's authentication link the probe will test.
+  -H HOSTNAME,     --hostname HOSTNAME         domain name of the service
+  -g GECKODRIVER,  --geckodriver GECKODRIVER   full path of the geckodriver executable(binary included)
 ```
 #### CLI command
 ## Form Based Logins
 ```bash
 sample command: checklogin -d 20 -v debug -u $USER -a $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
-                           -i https://idp.example.com/idp/shibboleth -H example.com
+                           -i https://idp.example.com/idp/shibboleth -H example.com -g /home/user/rciam_probes/bin/geckodriver
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
 ## Basic Authentication Logins
 ```bash
 sample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
-                            -f /usr/bin/firefox -v debug -d 20 -u $USER -a $PASSWORD --basic_auth
+                            -f /usr/bin/firefox -v debug -d 20 -g /home/user/rciam_probes/bin/geckodriver -u $USER -a $PASSWORD --basic_auth
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```

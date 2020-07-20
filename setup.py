@@ -38,5 +38,6 @@ setup(name=__name__,
       packages=find_packages(exclude=['tests', 'docs']),
       scripts=["bin/checkcert", "bin/checklogin"],
       python_requires='~=3.5',
-      install_requires=install_requires
+      install_requires=install_requires,
+      include_package_data=True
       )
