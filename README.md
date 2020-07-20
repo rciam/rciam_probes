@@ -124,7 +124,14 @@ Login Health does the following:
   * A number of simplesamlphp modules will fire. Last will always be the consent page
 * The user lands to the home page of the service
 
-The probes return exit codes and performance data according to Nagios Plugins Specifications.
+The probes:
+ * return exit codes and performance data according to Nagios Plugins Specifications
+ * create the directory structure rciam_probes/log/rciam_probes.log under the user's home folder
+ ```bash
+ /home/__user__/rciam_probes/
+└── log
+    └── rciam_probes.log
+```
 
 ## License
 Licensed under the Apache 2.0 license, for details see [LICENSE](https://github.com/rciam/rciam_probes/blob/master/LICENSE)
