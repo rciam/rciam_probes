@@ -6,11 +6,11 @@ dist:
 	@python3 setup.py sdist
 	@ls -l dist
 	@mv dist/${PKGNAME}-${PKGVERSION}.tar.gz .
+	@rm -r dist
 
 srpm: dist
 	@echo "-- Building srpm --"
-	ls -l dist
-	@rpmbuild -ts --define='dist .el6' ${PKGNAME}-${PKGVERSION}.tar.gz
+	@rpmbuild -ts --define='dist.el6' ${PKGNAME}-${PKGVERSION}.tar.gz
 
 rpm: dist
 	@echo "-- Building rpm --"
