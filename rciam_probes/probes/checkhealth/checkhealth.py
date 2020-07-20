@@ -4,6 +4,7 @@
 import argparse
 import re
 import sys
+import pkg_resources
 from urllib.parse import *
 
 from selenium import webdriver
@@ -11,11 +12,11 @@ from selenium.common.exceptions import *
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
-from shared.authentication import *
+from rciam_probes.shared.authentication import *
 # import methods from the lib directory
-from shared.enums import *
-from shared.templates import *
-from shared.utils import *
+from rciam_probes.shared.enums import *
+from rciam_probes.shared.templates import *
+from rciam_probes.shared.utils import *
 
 
 class RciamHealthCheck:
@@ -49,7 +50,7 @@ class RciamHealthCheck:
             self.__browser.close()
 
         # Get the full filepath of the geckodriver
-        gecko_file_path = get_project_root().rglob('geckodriver*')
+        gecko_file_path = Path(get_package_root()).rglob('geckodriver*')
         gecko_file_path_str = str(list(gecko_file_path)[0])
         self.__logger.debug(gecko_file_path_str)
 

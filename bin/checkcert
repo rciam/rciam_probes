@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from probes.checkmetadata.checkmetadata import RciamMetadataCheck
+from rciam_probes.probes.checkmetadata.checkmetadata import RciamMetadataCheck
 
 check = RciamMetadataCheck()
 check.check_cert()

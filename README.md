@@ -16,15 +16,10 @@ Currently it supports the following probes:
   * Webdriver Version(geckodriver): v0.26.0
 
 ## Installation
-For testing and development install locally:
+Execute:
 ```bash
-# Download, export and cd into the package
-$ pip3 install -e .
-```
-
-For production use:
-```bash
-$ python setup.py install
+$ python3 setup.py install
+# Now the log file is in ~/rciam_probes/log 
 ```
 
 Make rpm

@@ -3,10 +3,12 @@
 
 import argparse
 import sys
+import pkg_resources
 from argparse import ArgumentParser
 # import methods from the lib directory
-from shared.templates import *
-from shared.utils import *
+from rciam_probes.shared.enums import *
+from rciam_probes.shared.templates import *
+from rciam_probes.shared.utils import *
 
 
 class RciamMetadataCheck:

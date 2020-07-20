@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-from pathlib import Path
+import pkg_resources
 import requests
 import xmltodict
+import time as t
+
+from pathlib import Path
 from OpenSSL import crypto
 from datetime import datetime
-import time as t
 from time import mktime, time, gmtime
 
-from shared.enums import LoggingDefaults, LoggingLevel, NagiosStatusCode
+from rciam_probes.shared.enums import LoggingDefaults, LoggingLevel, NagiosStatusCode
 
 
 def configure_logger(args):
@@ -36,12 +38,27 @@ def configure_logger(args):
     logger.setLevel(args.verbose)
 
     # Create the log file if not exists
-    if not os.path.isfile(args.log):
-        logfile = Path(args.log)
-        logfile.touch(exist_ok=True)
+    if Path(get_package_root()).is_file():
+        log_path = Path.home().joinpath('rciam_probes').joinpath('log')
+        if not log_path.is_dir():
+            log_path.mkdir(parents=True)
+        log_file =log_path.joinpath('rciam_probes.log')
+        log_file.touch(exist_ok=True)
+        args.log = str(log_file)
+    else:
+        log_file_wpath = get_package_root() + args.log
+        args.log = log_file_wpath;
+        if not os.path.isfile(args.log):
+            log_path = Path(get_package_root() + LoggingDefaults.LOG_PATH.value)
+            if not log_path.is_dir():
+                log_path.mkdir(parents=True)
+            logfile = Path(args.log)
+            logfile.touch(exist_ok=True)
 
     # Create the Handler for logging data to a file
     logger_handler = logging.FileHandler(args.log)
+    # todo: Add config so that i can tongle between stdout and file
+    # logger_handler = logging.StreamHandler(sys.stdout)
     logger_handler.setLevel(args.verbose)
 
     # Create a Formatter for formatting the log messages
@@ -220,6 +237,6 @@ def get_nagios_status_n_code(var_chk, warning_th, critical_th, logger=None):
     return status, code
 
 
-def get_project_root() -> Path:
+def get_package_root():
     """Returns project root folder."""
-    return Path(__file__).parent.parent
+    return pkg_resources.get_distribution('rciam_probes').location
