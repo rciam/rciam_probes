@@ -52,10 +52,11 @@ class RciamHealthCheck:
 
         # Get the full filepath of the geckodriver
         # note: this will work for development, that's why i am keeping the geckodriver in the package code
+
         if not Path(get_package_root()).is_file():
             gecko_file_path = Path(get_package_root()).rglob('geckodriver*')
-            gecko_file_path_str = str(list(gecko_file_path)[0])
-            self.__logger.debug(gecko_file_path_str)
+            self.__geckodriver_binary = str(list(gecko_file_path)[0])
+            self.__logger.debug(self.__geckodriver_binary)
 
         self.__browser = webdriver.Firefox(options=self.__options,
                                            firefox_binary=self.__firefox_binary,
