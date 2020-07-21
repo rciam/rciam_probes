@@ -35,10 +35,9 @@ Currently it supports the following components:
 python3 setup.py build
 
 %install
-rm -rf %{buildroot}
-python3 setup.py install --skip-build --root %{buildroot} --record=INSTALLED_FILES
-install -d -m 755 %{buildroot}/%{dir}
-install -d -m 755 %{buildroot}/%{python_sitelib}/rciam_probes
+python3 setup.py install --skip-build --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
+install --directory -m 755 %{buildroot}/%{dir}
+install --directory -m 755 %{buildroot}/%{python_sitelib}/rciam_probes
 
 %clean
 rm -rf %{buildroot}
