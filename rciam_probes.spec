@@ -1,6 +1,7 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 # sitelib
 %define dir /usr/libexec/argo-monitoring/probes/rciam_probes
+%define _unpackaged_files_terminate_build 0
 
 Name: rciam_probes
 Summary: RCIAM related probes
