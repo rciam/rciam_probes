@@ -12,16 +12,16 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Group: Network/Monitoring
 BuildArch: noarch
-Requires: python3-cffi
-Requires: python3-cryptography
-Requires: python3-lxml
-Requires: python3-pycparser
-Requires: python3-pyOpenSSL
-Requires: python3-six
-Requires: python3-urllib3
-Requires: python3-xmltodict
-Requires: python3-selinium
-Requires: python3-beautifulsoup4
+Requires: python36-cffi
+Requires: python36-cryptography
+Requires: python36-lxml
+Requires: python36-pycparser
+Requires: python36-pyOpenSSL
+Requires: python36-six
+Requires: python36-urllib3
+Requires: python36-xmltodict
+Requires: python36-selinium
+Requires: python36-beautifulsoup4
 
 %description
 This package includes probes for RCIAM.
