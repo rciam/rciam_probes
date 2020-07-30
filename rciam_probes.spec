@@ -20,7 +20,7 @@ Requires: python36-pyOpenSSL
 Requires: python36-six
 Requires: python36-urllib3
 Requires: python36-xmltodict
-Requires: python36-selinium
+Requires: python36-selenium
 Requires: python36-beautifulsoup4
 
 %description
