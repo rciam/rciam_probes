@@ -43,8 +43,9 @@ python3 setup.py build
 
 %install
 python3 setup.py install --skip-build --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-install --directory -m 755 %{buildroot}%{_libexecdir}/%{name}
-cp -r rciam_probes/* %{buildroot}%{_libexecdir}/%{name}
+# src
+#install --directory -m 755 %{buildroot}%{_libexecdir}/%{name}
+#cp -r rciam_probes/* %{buildroot}%{_libexecdir}/%{name}
 # Copy my driver into the build
 install --directory -m 755 %{buildroot}%{_includedir}/%{name}/driver
 cp driver/geckodriver %{buildroot}%{_includedir}/%{name}/driver
@@ -56,16 +57,16 @@ touch %{buildroot}%{_localstatedir}/log/%{name}/rciam_probes.log
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
-%defattr(-,root,root,0755)
+#%defattr(-,root,root,0755)
 # src
-%dir %{_libexecdir}/%{name}/
-%{_libexecdir}/%{name}/*.py*
+#%dir %{_libexecdir}/%{name}/
+#%{_libexecdir}/%{name}/*.py*
 # driver
-%dir %{_includedir}/%{name}/driver/
-%{_includedir}/%{name}/driver/geckodriver
+%attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
+%attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
 # logs
-%dir %{_localstatedir}/log/%{name}/
-%{_localstatedir}/log/%{name}/rciam_probes.log
+%attr(0766,root,root) %dir %{_localstatedir}/log/%{name}/
+%attr(0766,root,root) %{_localstatedir}/log/%{name}/rciam_probes.log
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # documentation
 %doc LICENSE README.md CHANGELOG.md
