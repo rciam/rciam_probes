@@ -127,11 +127,10 @@ Login Health does the following:
 
 The probes:
  * return exit codes and performance data according to Nagios Plugins Specifications
- * create the directory structure rciam_probes/log/rciam_probes.log under the user's home folder
+ * (installing with rpm)create the directory structure rciam_probes/rciam_probes.log under the /var/log
  ```bash
- /home/__user__/rciam_probes/
-└── log
-    └── rciam_probes.log
+var/log/rciam_probes/
+`-- rciam_probes.log
 ```
 
 ## License

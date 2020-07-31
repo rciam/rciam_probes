@@ -2,7 +2,7 @@
 # sitelib
 %define _unpackaged_files_terminate_build 0
 %define _binaries_in_noarch_packages_terminate_build 0
-%define python3_sitelib /usr/lib/python3.6/site-packages
+%define argo_path argo-monitoring/probes
 
 Name: rciam_probes
 Summary: RCIAM related probes
@@ -43,36 +43,33 @@ python3 setup.py build
 
 %install
 python3 setup.py install --skip-build --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-# src
-#install --directory -m 755 %{buildroot}%{_libexecdir}/%{name}
-#cp -r rciam_probes/* %{buildroot}%{_libexecdir}/%{name}
+# cp the executables in the correct path
+install --directory -m 755 %{buildroot}%{_libexecdir}/%{argo_path}/%{name}
+cp bin/* %{buildroot}%{_libexecdir}/%{argo_path}/%{name}
 # Copy my driver into the build
 install --directory -m 755 %{buildroot}%{_includedir}/%{name}/driver
 cp driver/geckodriver %{buildroot}%{_includedir}/%{name}/driver
 # Create the log directory
 install --directory -m 755 %{buildroot}%{_localstatedir}/log/%{name}
-touch %{buildroot}%{_localstatedir}/log/%{name}/rciam_probes.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root,0755)
-# src
-#%dir %{_libexecdir}/%{name}/
-#%{_libexecdir}/%{name}/*.py*
+# binaries
+%dir %{_libexecdir}/%{argo_path}/%{name}
+%{_libexecdir}/%{argo_path}/%{name}/*
 # driver
 %attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
 %attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
 # logs
 %attr(0766,root,root) %dir %{_localstatedir}/log/%{name}/
-%attr(0766,root,root) %{_localstatedir}/log/%{name}/rciam_probes.log
+# own the log file but not install it
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # documentation
-%doc LICENSE README.md CHANGELOG.md
-
-#%preun
-#rm -rf %{_localstatedir}/log/%{name}
+%doc README.md CHANGELOG.md
+%license LICENSE
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
