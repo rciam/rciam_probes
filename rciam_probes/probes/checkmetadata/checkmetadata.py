@@ -24,7 +24,7 @@ class RciamMetadataCheck:
         self.__args = parse_arguments(args)
         self.__logger = configure_logger(self.__args)
         self.__protocol = 'http' if self.__args.port == 80 else 'https'
-        self.__timeout = self.__args.timeout if self.__args.timeout is None or self.__args.timeout < 0 else 5
+        self.__timeout = self.__args.timeout
         self.__url =  self.__protocol +\
                       '://' + self.__args.hostname +\
                       '/' + self.__args.endpoint
@@ -103,7 +103,7 @@ def parse_arguments(args):
     parser.add_argument('--endpoint', '-e', dest="endpoint", required=True,
                         help='Metadata endpoint, e.g. proxy/saml2/idp/metadata.php')
     parser.add_argument('--timeout', '-t', dest="timeout", type=int,
-                        help='Timeout after x seconds.Default is 5s.')
+                        help='Timeout after x seconds.Default is 5s.', default=5)
 
     return parser.parse_args(args)
 

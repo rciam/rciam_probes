@@ -54,7 +54,7 @@ class RciamHealthCheck:
                                            firefox_binary=self.__firefox_binary,
                                            executable_path=self.__geckodriver_binary,
                                            log_path=self.__args.log)
-        self.__wait = WebDriverWait(self.__browser, self.__args.delay)
+        self.__wait = WebDriverWait(self.__browser, self.__args.timeout)
 
     def __hide_cookie_policy(self):
         """Hide the cookie policy banner"""
@@ -318,8 +318,8 @@ def parse_arguments(args):
     parser.add_argument('--basic_auth', '-b', dest="basic_auth",
                         help='No Value needed. The precense of the flag indicates login test of Service Account',
                         action='store_true')
-    parser.add_argument('--delay', '-d', dest="delay", help='Maximum delay threshold when loading web page document',
-                        type=int, default=10)
+    parser.add_argument('--timeout', '-t', dest="timeout", help='Timeout after x amount of seconds. Defaults to 5s.',
+                        type=int, default=5)
     parser.add_argument('--sp', '-s', dest="service",
                         help='Service Provider Login, e.g. https://example.com/ssp/module.php/core/authenticate.php'
                              '?as=example-sp',
@@ -329,8 +329,6 @@ def parse_arguments(args):
                         required=True)
     parser.add_argument('--hostname', '-H', dest="hostname", required=True,
                         help='Domain, protocol assumed to be https, e.g. example.com')
-    parser.add_argument('--timeout', '-t', dest="timeout", type=int,
-                        help='Timeout after x seconds.Default is 30s.')
 
     return parser.parse_args(args)
 

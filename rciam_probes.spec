@@ -43,7 +43,7 @@ python3 setup.py build
 
 %install
 python3 setup.py install --skip-build --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-# cp the executables in the correct path
+# Copy the executables in the correct path
 install --directory -m 755 %{buildroot}%{_libexecdir}/%{argo_path}/%{name}
 cp bin/* %{buildroot}%{_libexecdir}/%{argo_path}/%{name}
 # Copy my driver into the build
@@ -65,7 +65,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
 # logs
 %attr(0766,root,root) %dir %{_localstatedir}/log/%{name}/
-# own the log file but not install it
+# own the log file but do not install it
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # documentation
 %doc README.md CHANGELOG.md

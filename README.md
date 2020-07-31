@@ -37,7 +37,7 @@ make clean
 ## Usage
 ### Metadata Health
 ```bash
-checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE] [-p PORT]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE] [-p PORT] [-t TIMEOUT]
 
 optional arguments:
   -h, --help                          show this help message and exit
@@ -47,6 +47,8 @@ optional arguments:
   -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
   -p PORT,      --port PORT           port the probe will target
+  -t TIMEOUT,   --timeout TIMEOUT     number of seconds the probe will wait for response before timeout
+
 
 required arguments:
   -H HOSTNAME,  --hostname HOSTNAME   domain name of the service
@@ -67,11 +69,11 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ### Login Health
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE] [-b|--basic_auth]
-          [-d DELAY] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
+          [-t TIMEOUT] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
 
 optional arguments:
   -h, --help                                   show this help message and exit
-  -d DELAY,        --delay DELAY               number of seconds the probe will wait for the page to load
+  -t TIMEOUT,      --timeout TIMEOUT           number of seconds the probe will wait for response before timeout
   -v VERBOSE,      --verbose VERBOSE           level of verboseness in log messages {debug,info,warning,error,critical}
   -l LOG,          --log LOG                   the logfile the probe will use to append its messages, provide full path
   -p PORT,         --port PORT                 port the probe will target
@@ -89,15 +91,15 @@ required arguments:
 #### CLI command
 ## Form Based Logins
 ```bash
-sample command: checklogin -d 20 -v debug -u $USER -a $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
-                           -i https://idp.example.com/idp/shibboleth -H example.com -g /home/user/rciam_probes/bin/geckodriver
+sample command: checklogin -t 20 -v debug -u $USER -a $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
+                           -i https://idp.example.com/idp/shibboleth -H example.com -g /path/to/geckodriver
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
 ## Basic Authentication Logins
 ```bash
 sample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
-                            -f /usr/bin/firefox -v debug -d 20 -g /home/user/rciam_probes/bin/geckodriver -u $USER -a $PASSWORD --basic_auth
+                            -f /usr/bin/firefox -v debug -t 20 -g /path/to/geckodriver -u $USER -a $PASSWORD --basic_auth
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
