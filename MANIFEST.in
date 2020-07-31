@@ -1,5 +1,7 @@
 include requirements.txt
 include README.md
 include LICENSE
+include CHANGELOG.md
 include rciam_probes.spec
-graft local
+recursive-include driver *
+recursive-exclude local *

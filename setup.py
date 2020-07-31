@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
@@ -36,8 +39,8 @@ setup(name=__name__,
       long_description_content_type="text/markdown",
       url='https://github.com/rciam/rciam_probes',
       packages=find_packages(exclude=['tests', 'docs']),
+      include_package_data=True,
       scripts=["bin/checkcert", "bin/checklogin"],
       python_requires='~=3.5',
       install_requires=install_requires,
-      include_package_data=True
       )

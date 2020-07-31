@@ -1,13 +1,17 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 # sitelib
-%define dir /usr/libexec/argo-monitoring/probes/rciam_probes
+%define dir /usr/libexec/argo-monitoring/probes
 %define _unpackaged_files_terminate_build 0
+%define python3_sitelib /usr/lib/python3.6/site-packages
 
 Name: rciam_probes
 Summary: RCIAM related probes
 Version: 1.0.5
+# fixme: macro could not be resolved
 Release: 1%{?dist}
+Url: https://github.com/rciam/%{name}
 License: Apache-2.0
+Vendor: GRNET SA
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Group: Network/Monitoring
@@ -20,8 +24,10 @@ Requires: python36-pyOpenSSL
 Requires: python36-six
 Requires: python36-urllib3
 Requires: python36-xmltodict
-Requires: python36-selenium
 Requires: python36-beautifulsoup4
+Requires: python36-requests
+#Requires: python36-selenium # This is not supported for Centos7
+
 
 %description
 This package includes probes for RCIAM.
@@ -37,16 +43,22 @@ python3 setup.py build
 
 %install
 python3 setup.py install --skip-build --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-install --directory -m 755 %{buildroot}/%{dir}
-install --directory -m 755 %{buildroot}/%{python_sitelib}/rciam_probes
+install --directory -m 755 %{buildroot}%{_localstatedir}/log/
+install --directory -m 755 %{buildroot}%{dir}/%{name}
+# Copy my driver into the build
+install --directory -m 755 %{buildroot}%{dir}/%{name}/driver
+cp driver/geckodriver %{buildroot}%{dir}/%{name}/driver
+# Create the log directory
+touch %{buildroot}%{_localstatedir}/log/rciam_probes.log
 
 %clean
-rm -rf %{buildroot}
+rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
+%attr(0755,root,root) %{_localstatedir}/log/rciam_probes.log
+%ghost %{_localstatedir}/log/rciam_probes.log
 %defattr(-,root,root,0755)
-%{python_sitelib}/rciam_probes
-%{dir}
+%doc LICENSE README.md CHANGELOG.md
 
 
 %changelog
