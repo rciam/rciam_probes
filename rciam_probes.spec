@@ -57,22 +57,19 @@ touch %{buildroot}%{_localstatedir}/log/%{name}/rciam_probes.log
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
-#%defattr(-,root,root,0755)
+%defattr(-,root,root,0755)
 # src
 #%dir %{_libexecdir}/%{name}/
 #%{_libexecdir}/%{name}/*.py*
 # driver
 %attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
-%attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
+%ghost %{_includedir}/%{name}/driver/geckodriver
 # logs
 %attr(0766,root,root) %dir %{_localstatedir}/log/%{name}/
-%attr(0766,root,root) %{_localstatedir}/log/%{name}/rciam_probes.log
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # documentation
-%doc LICENSE README.md CHANGELOG.md
-
-#%preun
-#rm -rf %{_localstatedir}/log/%{name}
+%doc README.md CHANGELOG.md
+%license LICENSE
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
