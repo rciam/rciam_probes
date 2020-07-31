@@ -1,6 +1,5 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 # sitelib
-%define dir /usr/libexec/argo-monitoring/probes
 %define _unpackaged_files_terminate_build 0
 %define _binaries_in_noarch_packages_terminate_build 0
 %define python3_sitelib /usr/lib/python3.6/site-packages
@@ -37,14 +36,15 @@ Currently it supports the following components:
  - Login Health
 
 %prep
-%setup -q
+%setup -n %{name}-%{version}
 
 %build
 python3 setup.py build
 
 %install
 python3 setup.py install --skip-build --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-install --directory -m 755 %{buildroot}%{dir}/%{name}
+install --directory -m 755 %{buildroot}%{_libexecdir}/%{name}
+cp -r rciam_probes/* %{buildroot}%{_libexecdir}/%{name}
 # Copy my driver into the build
 install --directory -m 755 %{buildroot}%{_includedir}/%{name}/driver
 cp driver/geckodriver %{buildroot}%{_includedir}/%{name}/driver
@@ -57,13 +57,21 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root,0755)
-%{dir}/%{name}
+# src
+%dir %{_libexecdir}/%{name}/
+%{_libexecdir}/%{name}/*.py*
+# driver
+%dir %{_includedir}/%{name}/driver/
 %{_includedir}/%{name}/driver/geckodriver
+# logs
+%dir %{_localstatedir}/log/%{name}/
+%{_localstatedir}/log/%{name}/rciam_probes.log
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
+# documentation
 %doc LICENSE README.md CHANGELOG.md
 
-%preun
-rm -rf %{_localstatedir}/log/%{name}
+#%preun
+#rm -rf %{_localstatedir}/log/%{name}
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
