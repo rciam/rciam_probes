@@ -40,7 +40,7 @@ def configure_logger(args):
     # Create the log file if not exists
     # First try in the /var/log/rciam_probes path. This is the path used when
     # install with rpm
-    installed_log_path = Path.home().joinpath('var').joinpath('log').joinpath('rciam_probes')
+    installed_log_path = Path('/').joinpath('var').joinpath('log').joinpath('rciam_probes')
     if installed_log_path.is_dir():
         if installed_log_path.is_dir():
             log_file = installed_log_path.joinpath('rciam_probes.log')
