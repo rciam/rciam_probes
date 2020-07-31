@@ -18,11 +18,13 @@ class RciamMetadataCheck:
     __ncode = -1
     __url = None
     __protocol = None
+    __timeout = None
 
     def __init__(self, args=sys.argv[1:]):
         self.__args = parse_arguments(args)
         self.__logger = configure_logger(self.__args)
         self.__protocol = 'http' if self.__args.port == 80 else 'https'
+        self.__timeout = self.__args.timeout if self.__args.timeout is None or self.__args.timeout < 0 else 5
         self.__url =  self.__protocol +\
                       '://' + self.__args.hostname +\
                       '/' + self.__args.endpoint
@@ -33,7 +35,7 @@ class RciamMetadataCheck:
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
 
         try:
-            metadata_dict = get_xml(self.__url)
+            metadata_dict = get_xml(self.__url, self.__timeout)
             # Find the certificate by type
             x509_dict = fetch_cert_from_type(metadata_dict, self.__args.certuse)
             if len(x509_dict) > 1:
@@ -100,6 +102,8 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--endpoint', '-e', dest="endpoint", required=True,
                         help='Metadata endpoint, e.g. proxy/saml2/idp/metadata.php')
+    parser.add_argument('--timeout', '-t', dest="timeout", type=int,
+                        help='Timeout after x seconds.Default is 5s.')
 
     return parser.parse_args(args)
 

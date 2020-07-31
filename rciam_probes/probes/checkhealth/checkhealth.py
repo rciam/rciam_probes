@@ -329,6 +329,8 @@ def parse_arguments(args):
                         required=True)
     parser.add_argument('--hostname', '-H', dest="hostname", required=True,
                         help='Domain, protocol assumed to be https, e.g. example.com')
+    parser.add_argument('--timeout', '-t', dest="timeout", type=int,
+                        help='Timeout after x seconds.Default is 30s.')
 
     return parser.parse_args(args)
 

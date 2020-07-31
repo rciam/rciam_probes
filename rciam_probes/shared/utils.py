@@ -79,7 +79,7 @@ def configure_logger(args):
     return logger
 
 
-def get_xml(url):
+def get_xml(url, timeout=5):
     """
     Get and parse an xml available through a url
     :param url: URL
@@ -91,7 +91,7 @@ def get_xml(url):
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
     requests.packages.urllib3.disable_warnings()
-    response = requests.get(url, verify=False)
+    response = requests.get(url, verify=False, timeout=timeout)
     return xmltodict.parse(response.text)
 
 
