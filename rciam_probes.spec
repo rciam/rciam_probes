@@ -63,13 +63,16 @@ rm -rf $RPM_BUILD_ROOT
 #%{_libexecdir}/%{name}/*.py*
 # driver
 %attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
-%ghost %{_includedir}/%{name}/driver/geckodriver
+%attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
 # logs
 %attr(0766,root,root) %dir %{_localstatedir}/log/%{name}/
+%attr(0766,root,root) %{_localstatedir}/log/%{name}/rciam_probes.log
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # documentation
-%doc README.md CHANGELOG.md
-%license LICENSE
+%doc LICENSE README.md CHANGELOG.md
+
+#%preun
+#rm -rf %{_localstatedir}/log/%{name}
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
