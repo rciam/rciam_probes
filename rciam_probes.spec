@@ -59,7 +59,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 # binaries
 %dir %{_libexecdir}/%{argo_path}/%{name}
-%{_libexecdir}/%{argo_path}/%{name}/*
+%attr(0755,root,root) %{_libexecdir}/%{argo_path}/%{name}/*
 # driver
 %attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
 %attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
