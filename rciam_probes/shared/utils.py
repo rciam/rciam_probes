@@ -7,6 +7,7 @@ import requests
 import xmltodict
 import time as t
 
+from shutil import chown
 from pathlib import Path
 from OpenSSL import crypto
 from datetime import datetime
@@ -46,6 +47,7 @@ def configure_logger(args):
             log_file = installed_log_path.joinpath('rciam_probes.log')
             log_file.touch(exist_ok=True)
             args.log = str(log_file)
+            chown(args.log, user="nagios", group="nagios")
     elif Path(get_package_root()).is_file():
         log_path = Path.home().joinpath('rciam_probes').joinpath('log')
         if not log_path.is_dir():
@@ -53,6 +55,7 @@ def configure_logger(args):
         log_file =log_path.joinpath('rciam_probes.log')
         log_file.touch(exist_ok=True)
         args.log = str(log_file)
+        chown(args.log, user="nagios", group="nagios")
     else:
         log_file_wpath = get_package_root() + args.log
         args.log = log_file_wpath;
@@ -62,6 +65,7 @@ def configure_logger(args):
                 log_path.mkdir(parents=True)
             logfile = Path(args.log)
             logfile.touch(exist_ok=True)
+        chown(args.log, user="nagios", group="nagios")
 
     # Create the Handler for logging data to a file
     logger_handler = logging.FileHandler(args.log)
