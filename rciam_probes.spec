@@ -64,7 +64,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
 %attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
 # logs
-%attr(0644,nagios,nagios) %dir %{_localstatedir}/log/%{name}/
+%attr(0744,nagios,nagios) %dir %{_localstatedir}/log/%{name}/
 # own the log file but do not install it
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # documentation
