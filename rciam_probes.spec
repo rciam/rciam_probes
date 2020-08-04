@@ -26,7 +26,7 @@ Requires: python36-urllib3
 Requires: python36-xmltodict
 Requires: python36-beautifulsoup4
 Requires: python36-requests
-Requires: firefox-68
+Requires: firefox
 #Requires: python36-selenium # This is not supported for Centos7
 
 
