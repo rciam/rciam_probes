@@ -76,10 +76,26 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # logrotate
 %attr(0755,root,root) %dir %{_sysconfdir}/%{logrotate_dir}/
-%attr(0755,root,root) %{_sysconfdir}/%{logrotate_dir}/%{name}
+%attr(0644,root,root) %{_sysconfdir}/%{logrotate_dir}/%{name}
 # documentation
 %doc README.md CHANGELOG.md
 %license LICENSE
+
+#%post
+#if [ $1 == 1 ];then
+#  {
+#    echo '/var/log/rciam_probes/rciam_probes.log {'
+#    echo '  size 100M'
+#    echo '  daily'
+#    echo '  missinggok'
+#    echo '  notifempty'
+#    echo '  compress'
+#    echo '  maxage 10'
+#    echo '  create'
+#    echo '  rotate 10'
+#    echo '}'
+#  } > %{_sysconfdir}/%{logrotate_dir}/%{name}
+#fi
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5

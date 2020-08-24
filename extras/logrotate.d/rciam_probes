@@ -1,7 +1,7 @@
 /var/log/rciam_probes/rciam_probes.log {
  size 100M
  daily
- missinggok
+ missingok
  notifempty
  compress
  maxage 10
