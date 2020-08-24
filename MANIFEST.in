@@ -5,6 +5,7 @@ include CHANGELOG.md
 include rciam_probes.spec
 include rciam_probes/*.py
 recursive-include driver *
+recursive-include extras *
 recursive-exclude local *
 recursive-exclude modules *.pyc *.pyo
 recursive-exclude bin *.pyc *.pyo

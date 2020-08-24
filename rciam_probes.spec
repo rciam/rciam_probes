@@ -56,7 +56,7 @@ cp driver/geckodriver %{buildroot}%{_includedir}/%{name}/driver
 install --directory -m 755 %{buildroot}%{_localstatedir}/log/%{name}
 # Copy the log rotate configuration
 install --directory -m 755 %{buildroot}%{_sysconfdir}/%{logrotate_dir}/
-cp extras/rciam_probes %{buildroot}%{_sysconfdir}/%{logrotate_dir}/
+cp -r extras/%{logrotate_dir}/ %{buildroot}%{_sysconfdir}
 
 
 %clean
