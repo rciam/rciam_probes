@@ -3,6 +3,7 @@
 %define _unpackaged_files_terminate_build 0
 %define _binaries_in_noarch_packages_terminate_build 0
 %define argo_path argo-monitoring/probes
+%define logrotate_dir logrotate.d
 
 Name: rciam_probes
 Summary: RCIAM related probes
@@ -27,6 +28,7 @@ Requires: python36-xmltodict
 Requires: python36-beautifulsoup4
 Requires: python36-requests
 Requires: firefox
+Requires: logrotate
 #Requires: python36-selenium # This is not supported for Centos7
 
 
@@ -52,6 +54,10 @@ install --directory -m 755 %{buildroot}%{_includedir}/%{name}/driver
 cp driver/geckodriver %{buildroot}%{_includedir}/%{name}/driver
 # Create the log directory
 install --directory -m 755 %{buildroot}%{_localstatedir}/log/%{name}
+# Copy the log rotate configuration
+install --directory -m 755 %{buildroot}%{_localstatedir}/%{logrotate_dir}/
+cp extras/rciam_probes %{buildroot}%{_localstatedir}/%{logrotate_dir}/
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -68,6 +74,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0744,nagios,nagios) %dir %{_localstatedir}/log/%{name}/
 # own the log file but do not install it
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
+# logrotate
+%attr(0755,root,root) %dir %{_sysconfdir}/%{logrotate_dir}/
+%attr(0755,root,root) %{_localstatedir}/%{logrotate_dir}/%{name}
 # documentation
 %doc README.md CHANGELOG.md
 %license LICENSE

@@ -1,0 +1,10 @@
+/var/log/rciam_probes/rciam_probes.log {
+ size 10K
+ hourly
+ missinggok
+ notifempty
+ compress
+ maxage 10
+ create
+ rotate 10
+}
