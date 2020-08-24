@@ -20,7 +20,6 @@ Currently it supports the following probes:
 Clone and install in local repository with venv
 ```bash
 $ python3 setup.py install
-# Now the log file is in ~/rciam_probes/log 
 ```
 Make rpm
 ```bash
@@ -68,25 +67,26 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ```
 ### Login Health
 ```bash
-checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE] [-b|--basic_auth]
-          [-t TIMEOUT] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT]
+checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE PROVIDER] [-b|--basic_auth]
+          [-t TIMEOUT] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT] [-r SERVICE PROVIDER]
 
 optional arguments:
-  -h, --help                                   show this help message and exit
-  -t TIMEOUT,      --timeout TIMEOUT           number of seconds the probe will wait for response before timeout
-  -v VERBOSE,      --verbose VERBOSE           level of verboseness in log messages {debug,info,warning,error,critical}
-  -l LOG,          --log LOG                   the logfile the probe will use to append its messages, provide full path
-  -p PORT,         --port PORT                 port the probe will target
-  -b,              --basic_auth                Login flow with Basic Authentication
+  -h,                  --help                      show this help message and exit
+  -t TIMEOUT,          --timeout TIMEOUT           number of seconds the probe will wait for response before timeout
+  -v VERBOSE,          --verbose VERBOSE           level of verboseness in log messages {debug,info,warning,error,critical}
+  -l LOG,              --log LOG                   the logfile the probe will use to append its messages, provide full path
+  -p PORT,             --port PORT                 port the probe will target
+  -b,                  --basic_auth                login flow with Basic Authentication
+  -f FIREFOX,          --firefox FIREFOX           firefox binary full path
+  -g GECKODRIVER,      --geckodriver GECKODRIVER   full path of the geckodriver executable(binary included)
+  -r SERVICE,          --rp RP                     full URL of the Service Provider's Landing Page after a successfull authentication
 
 required arguments:
-  -u USERNAME,     --username USERNAME         username of the user to be authenticated
-  -a PASSWORD,     --password PASSWORD         password of the user to be authenticated
-  -f FIREFOX,      --firefox FIREFOX           firefox binary full path
-  -i IDENTITY,     --idp IDENTITY              CSV List of entityID URL of the identity provider, e.g. https://idp.example.com/idp/shibboleth,https://egi.eu/idp/shibboleth. Each entry represents a Discovery page hop
-  -s SERVICE,      --sp SERVICE                full URL of the Service Provider's authentication link the probe will test.
-  -H HOSTNAME,     --hostname HOSTNAME         domain name of the service
-  -g GECKODRIVER,  --geckodriver GECKODRIVER   full path of the geckodriver executable(binary included)
+  -u USERNAME,         --username USERNAME         username of the user to be authenticated
+  -a PASSWORD,         --password PASSWORD         password of the user to be authenticated
+  -i IDENTITY,         --idp IDENTITY              csv list of entityID URL of the identity provider, e.g. https://idp.example.com/idp/shibboleth,https://egi.eu/idp/shibboleth. Each IdP entry represents a hop towards authentication during a login flow.
+  -s SERVICE PROVIDER, --sp SP                     full URL of the Service Provider's AUTHENTICATION link the probe will test
+  -H HOSTNAME,         --hostname HOSTNAME         domain name of the service
 ```
 #### CLI command
 ## Form Based Logins
@@ -129,9 +129,14 @@ Login Health does the following:
 
 The probes:
  * return exit codes and performance data according to Nagios Plugins Specifications
- * (installing with rpm)create the directory structure rciam_probes/rciam_probes.log under the /var/log
+ * (installing with rpm)create the directory structure rciam_probes/rciam_probes.log under the /var/log and all output is redirected there.
  ```bash
-var/log/rciam_probes/
+/var/log/rciam_probes/
+`-- rciam_probes.log
+```
+ * If /var/log/rciam_probes/ path is not available during probe execution, then the probe will create it under the user's home directory
+ ```bash
+/home/user/var/log/rciam_probes/
 `-- rciam_probes.log
 ```
 

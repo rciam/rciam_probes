@@ -89,7 +89,7 @@ def parse_arguments(args):
     """
     parser = argparse.ArgumentParser(description="Cert Check Probe for RCIAM")
 
-    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
+    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=ParamDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
                         choices=['debug', 'info', 'warning', 'error', 'critical'])
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
@@ -104,6 +104,8 @@ def parse_arguments(args):
                         help='Metadata endpoint, e.g. proxy/saml2/idp/metadata.php')
     parser.add_argument('--timeout', '-t', dest="timeout", type=int,
                         help='Timeout after x seconds.Default is 5s.', default=5)
+    parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
+                        help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
 
     return parser.parse_args(args)
 

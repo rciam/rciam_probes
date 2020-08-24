@@ -88,7 +88,7 @@ class RciamHealthCheck:
 
     def __sp_redirect_disco_n_click(self):
         """Discovery Service View"""
-        self.__browser.get(self.__args.service)
+        self.__browser.get(self.__args.sp)
         # In case i have a list of hops
         idp_list = self.__args.identity.split(',')
         for idp in idp_list:
@@ -236,10 +236,12 @@ class RciamHealthCheck:
         Verify that the Service Providers Home page loaded successfully
         :raises TimeoutException: if an element fails to load
         """
-        # todo: Load a file here with what the function should expect. If not present run the default below
-        # todo: The file should be provided from the command line??
+        if self.__args.rs is not None:
+            landing_page = self.__args.rs
+        else:
+            landing_page = self.__args.sp
         self.__wait.until(
-            lambda driver: self.__browser.current_url.strip('/').find(self.__args.service.strip('/')) == 0)
+            lambda driver: self.__browser.current_url.strip('/').find(landing_page.strip('/')) == 0)
         # self.__wait.until(
         #     lambda driver: self.__browser.current_url.strip('/').find('https://testvm.agora.grnet.gr/ui') == 0)
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
@@ -275,7 +277,8 @@ class RciamHealthCheck:
             # Verify that the SPs home page loaded
             self.__verify_sp_home_page_loaded()
             code = NagiosStatusCode.OK.value
-            msg = login_health_check_tmpl.substitute(defaults_login_health_check, time=round(stop_ticking(self.__start_time), 2))
+            msg = login_health_check_tmpl.substitute(defaults_login_health_check,
+                                                     time=round(stop_ticking(self.__start_time), 2))
         except TimeoutException:
             msg = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
             # Log print here
@@ -308,9 +311,11 @@ def parse_arguments(args):
 
     parser.add_argument('--username', '-u', dest="username", help='IdP username', required=True)
     parser.add_argument('--password', '-a', dest="password", help='Idp password', required=True)
-    parser.add_argument('--firefox', '-f', dest="firefox", help='Firefox binary full path', required=True)
-    parser.add_argument('--geckodriver', '-g', dest="geckodriver", help='geckodriver binary full path', required=True)
-    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=LoggingDefaults.LOG_FILE.value)
+    parser.add_argument('--firefox', '-f', dest="firefox", help='Firefox binary full path',
+                        default=ParamDefaults.FIREFOX_PATH.value)
+    parser.add_argument('--geckodriver', '-g', dest="geckodriver", help='geckodriver binary full path',
+                        default=ParamDefaults.GECKODRIVER_PATH.value)
+    parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=ParamDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
                         choices=['debug', 'info', 'warning', 'error', 'critical'])
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
@@ -320,15 +325,19 @@ def parse_arguments(args):
                         action='store_true')
     parser.add_argument('--timeout', '-t', dest="timeout", help='Timeout after x amount of seconds. Defaults to 5s.',
                         type=int, default=5)
-    parser.add_argument('--sp', '-s', dest="service",
-                        help='Service Provider Login, e.g. https://example.com/ssp/module.php/core/authenticate.php'
+    parser.add_argument('--sp', '-s', dest="sp",
+                        help='Service Provider Login Authentication Protected URL, e.g. https://example.com/ssp/module.php/core/authenticate.php'
                              '?as=example-sp',
                         required=True)
+    parser.add_argument('--rs', '-r', dest="rs",
+                        help='Service Provider Landing Page URL. If not provided the prove will assume that the landing page is the same as the Authentication URL. This is true for the case of SimpleSamlPHP Dummy SPs.')
     parser.add_argument('--idp', '-i', dest="identity",
-	                    help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
+                        help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
                         required=True)
     parser.add_argument('--hostname', '-H', dest="hostname", required=True,
                         help='Domain, protocol assumed to be https, e.g. example.com')
+    parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
+                        help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
 
     return parser.parse_args(args)
 

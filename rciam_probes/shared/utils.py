@@ -13,7 +13,7 @@ from OpenSSL import crypto
 from datetime import datetime
 from time import mktime, time, gmtime
 
-from rciam_probes.shared.enums import LoggingDefaults, LoggingLevel, NagiosStatusCode
+from rciam_probes.shared.enums import ParamDefaults, LoggingLevel, NagiosStatusCode
 
 
 def configure_logger(args):
@@ -26,7 +26,7 @@ def configure_logger(args):
     """
     # Set the logfile
     if not args.log:
-        args.log = LoggingDefaults.LOG_FILE.value
+        args.log = ParamDefaults.LOG_FILE.value
 
     # Set the log verbosity
     if not args.verbose:
@@ -40,32 +40,17 @@ def configure_logger(args):
 
     # Create the log file if not exists
     # First try in the /var/log/rciam_probes path. This is the path used when
-    # install with rpm
-    installed_log_path = Path('/').joinpath('var').joinpath('log').joinpath('rciam_probes')
-    if installed_log_path.is_dir():
-        if installed_log_path.is_dir():
-            log_file = installed_log_path.joinpath('rciam_probes.log')
-            log_file.touch(exist_ok=True)
-            args.log = str(log_file)
-            chown(args.log, user="nagios", group="nagios")
-    elif Path(get_package_root()).is_file():
-        log_path = Path.home().joinpath('rciam_probes').joinpath('log')
-        if not log_path.is_dir():
-            log_path.mkdir(parents=True)
-        log_file =log_path.joinpath('rciam_probes.log')
-        log_file.touch(exist_ok=True)
-        args.log = str(log_file)
-        chown(args.log, user="nagios", group="nagios")
-    else:
-        log_file_wpath = get_package_root() + args.log
-        args.log = log_file_wpath;
-        if not os.path.isfile(args.log):
-            log_path = Path(get_package_root() + LoggingDefaults.LOG_PATH.value)
-            if not log_path.is_dir():
-                log_path.mkdir(parents=True)
-            logfile = Path(args.log)
-            logfile.touch(exist_ok=True)
-        chown(args.log, user="nagios", group="nagios")
+    # installing with rpm. If the path is not available then create it under
+    # current user home directory
+    log_path = Path('/').joinpath('var').joinpath('log').joinpath('rciam_probes')
+    if not log_path.is_dir():
+        log_path = Path.home().joinpath('var').joinpath('log').joinpath('rciam_probes')
+        log_path.mkdir(0o755, parents=True, exist_ok=True)
+
+    log_file = log_path.joinpath('rciam_probes.log')
+    log_file.touch(exist_ok=True)
+    args.log = str(log_file)
+    chown(args.log, user=args.logowner, group=args.logowner)
 
     # Create the Handler for logging data to a file
     logger_handler = logging.FileHandler(args.log)
@@ -74,7 +59,7 @@ def configure_logger(args):
     logger_handler.setLevel(args.verbose)
 
     # Create a Formatter for formatting the log messages
-    logger_formatter = logging.Formatter(LoggingDefaults.LOG_FORMATTER.value)
+    logger_formatter = logging.Formatter(ParamDefaults.LOG_FORMATTER.value)
     # Add the Formatter to the Handler
     logger_handler.setFormatter(logger_formatter)
     # Add the Handler to the Logger

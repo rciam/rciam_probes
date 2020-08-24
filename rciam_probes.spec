@@ -99,10 +99,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
+- Added Service Provider landing page into configuration list. Optional parameter
 - Added Logrotate support
 - Restructured package
-- Fixed non existing log file after setup.py install
-- Add geckodriver into configuration list
+- Fixed log file creation
+- Add geckodriver into configuration list. Optional parameter
 - Fixed python packaging
 - Tested with python version 3.6
 - Updated README.md

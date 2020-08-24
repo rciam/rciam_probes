@@ -13,15 +13,14 @@ class LoggingLevel(Enum):
     error = 40
     critical = 50
 
-class EGIDefaults(Enum):
-    ServiceAccountIdp = "https://login.ics.muni.cz/idp/shibboleth"
-    EGISSOIdp = "https://www.egi.eu/idp/shibboleth"
 
-
-class LoggingDefaults(Enum):
-    LOG_PATH = r"/local/log/"
-    LOG_FILE = r"/local/log/rciam_probes.log"
+class ParamDefaults(Enum):
+    LOG_PATH = r"/var/log/rciam_probes/"
+    LOG_FILE = r"/var/log/rciam_probes/rciam_probes.log"
+    LOG_OWNER = "nagios"
     LOG_FORMATTER = "%(asctime)s %(processName)s[%(process)d]: %(levelname)s: %(filename)s[%(funcName)s] - %(message)s"
+    FIREFOX_PATH = r"/usr/bin/firefox"
+    GECKODRIVER_PATH = r"/usr/include/rciam_probes/driver/geckodriver"
 
 
 class AuthenticateTxt(Enum):
