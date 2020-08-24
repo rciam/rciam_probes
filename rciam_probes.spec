@@ -55,8 +55,8 @@ cp driver/geckodriver %{buildroot}%{_includedir}/%{name}/driver
 # Create the log directory
 install --directory -m 755 %{buildroot}%{_localstatedir}/log/%{name}
 # Copy the log rotate configuration
-install --directory -m 755 %{buildroot}%{_localstatedir}/%{logrotate_dir}/
-cp extras/rciam_probes %{buildroot}%{_localstatedir}/%{logrotate_dir}/
+install --directory -m 755 %{buildroot}%{_sysconfdir}/%{logrotate_dir}/
+cp extras/rciam_probes %{buildroot}%{_sysconfdir}/%{logrotate_dir}/
 
 
 %clean
@@ -76,13 +76,14 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{_localstatedir}/log/%{name}/rciam_probes.log
 # logrotate
 %attr(0755,root,root) %dir %{_sysconfdir}/%{logrotate_dir}/
-%attr(0755,root,root) %{_localstatedir}/%{logrotate_dir}/%{name}
+%attr(0755,root,root) %{_sysconfdir}/%{logrotate_dir}/%{name}
 # documentation
 %doc README.md CHANGELOG.md
 %license LICENSE
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
+- Added Logrotate support
 - Restructured package
 - Fixed non existing log file after setup.py install
 - Add geckodriver into configuration list
