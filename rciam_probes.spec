@@ -99,10 +99,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
+- Enabled logging output both into a file or into stdout
 - Added Service Provider landing page into configuration list. Optional parameter
 - Added Logrotate support
 - Restructured package
-- Fixed log file creation
+- Fixed log directory and file initialization
 - Add geckodriver into configuration list. Optional parameter
 - Fixed python packaging
 - Tested with python version 3.6

@@ -36,7 +36,8 @@ make clean
 ## Usage
 ### Metadata Health
 ```bash
-checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE] [-p PORT] [-t TIMEOUT]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE] [-p PORT]
+            [-t TIMEOUT] [-C|--console Console]
 
 optional arguments:
   -h, --help                          show this help message and exit
@@ -47,6 +48,7 @@ optional arguments:
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
   -p PORT,      --port PORT           port the probe will target
   -t TIMEOUT,   --timeout TIMEOUT     number of seconds the probe will wait for response before timeout
+  -C,           --console             enable log output to stdout
 
 
 required arguments:
@@ -68,7 +70,7 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ### Login Health
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE PROVIDER] [-b|--basic_auth]
-          [-t TIMEOUT] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT] [-r SERVICE PROVIDER]
+          [-t TIMEOUT] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT] [-r SERVICE PROVIDER] [-C|--console console]
 
 optional arguments:
   -h,                  --help                      show this help message and exit
@@ -80,6 +82,7 @@ optional arguments:
   -f FIREFOX,          --firefox FIREFOX           firefox binary full path
   -g GECKODRIVER,      --geckodriver GECKODRIVER   full path of the geckodriver executable(binary included)
   -r SERVICE,          --rp RP                     full URL of the Service Provider's Landing Page after a successfull authentication
+  -C,                  --console                   enable log output to stdout
 
 required arguments:
   -u USERNAME,         --username USERNAME         username of the user to be authenticated

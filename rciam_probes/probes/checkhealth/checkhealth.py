@@ -321,7 +321,10 @@ def parse_arguments(args):
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
                         choices=[80, 443], default=443, type=int)
     parser.add_argument('--basic_auth', '-b', dest="basic_auth",
-                        help='No Value needed. The precense of the flag indicates login test of Service Account',
+                        help='No Value needed. The presence of the flag indicates login test of Service Account',
+                        action='store_true')
+    parser.add_argument('--console', '-C', dest="console",
+                        help='No Value needed. The presence of the flag indicates log output in stdout',
                         action='store_true')
     parser.add_argument('--timeout', '-t', dest="timeout", help='Timeout after x amount of seconds. Defaults to 5s.',
                         type=int, default=5)

@@ -106,6 +106,9 @@ def parse_arguments(args):
                         help='Timeout after x seconds.Default is 5s.', default=5)
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
+    parser.add_argument('--console', '-C', dest="console",
+                        help='No Value needed. The presence of the flag indicates log output in stdout',
+                        action='store_true')
 
     return parser.parse_args(args)
 

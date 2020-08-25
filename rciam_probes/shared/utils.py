@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
-import os
+import sys
+
 import pkg_resources
 import requests
 import xmltodict
@@ -52,10 +53,12 @@ def configure_logger(args):
     args.log = str(log_file)
     chown(args.log, user=args.logowner, group=args.logowner)
 
-    # Create the Handler for logging data to a file
-    logger_handler = logging.FileHandler(args.log)
-    # todo: Add config so that i can tongle between stdout and file
-    # logger_handler = logging.StreamHandler(sys.stdout)
+    if args.console:
+        # Create the Handler for logging data to stdout
+        logger_handler = logging.StreamHandler(sys.stdout)
+    else:
+        # Create the Handler for logging data to a file
+        logger_handler = logging.FileHandler(args.log)
     logger_handler.setLevel(args.verbose)
 
     # Create a Formatter for formatting the log messages
