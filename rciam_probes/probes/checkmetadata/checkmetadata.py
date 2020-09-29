@@ -51,13 +51,12 @@ class RciamMetadataCheck:
                 self.__msg = separator.join(msg_list)
                 # Add the performance data
                 self.__msg += " | 'SSL Metadata Cert Status'=" + str(self.__ncode)
-
             else:
                 expiration_days, certData = evaluate_single_certificate(list(x509_dict.values())[0])
                 status, code = get_nagios_status_n_code(expiration_days, self.__args.warning, self.__args.critical, self.__logger)
                 self.__ncode = code
                 self.__msg = cert_health_check_tmpl.substitute(defaults_cert_health_check,
-                                                               type=self.__args.certuse,
+                                                               type=list(x509_dict.keys())[0],
                                                                status=status,
                                                                subject=certData['Subject']['CN'],
                                                                issuer=certData['Issuer']['CN'],

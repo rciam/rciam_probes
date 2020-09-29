@@ -120,6 +120,7 @@ def fetch_cert_from_type(metadata_dict, cert_type):
 
     :return: dictionary of certificates {type<str>: certificate<str>}
     :rtype: dict
+    :todo use enumarators instead of fixed values for all,encryption,signing
     """
     try:
         x509_list_gen = gen_dict_extract(metadata_dict, 'KeyDescriptor')
@@ -127,17 +128,25 @@ def fetch_cert_from_type(metadata_dict, cert_type):
         x509_dict = {}
         # If all is chosen then return a list with all the certificates
         if cert_type == 'all':
-            for x509_elem_dict in x509_list:
-                mcert_type = ['unknown', x509_elem_dict.get('@use')]['@use' in x509_elem_dict]
-                x509_dict[mcert_type] = x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get(
-                    'ds:X509Certificate')
+            for x509_elem_obj in x509_list:
+                # if there is no certificate type then x509_elem_obj will not actually be a dictionary
+                if isinstance(x509_elem_obj, dict):
+                    mcert_type = ['unknown', x509_elem_obj.get('@use')]['@use' in x509_elem_obj]
+                    x509_dict[mcert_type] = x509_elem_obj.get('ds:KeyInfo').get('ds:X509Data').get(
+                        'ds:X509Certificate')
+                else:
+                    x509_dict['unknown'] = x509_list.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
             return x509_dict
         else:  # If not then return the certificate of the type requested
-            for x509_elem_dict in x509_list:
-                if x509_elem_dict.get('@use') != cert_type:
-                    continue
-                x509_dict[x509_elem_dict.get('@use')] = x509_elem_dict.get('ds:KeyInfo').get('ds:X509Data').get(
-                    'ds:X509Certificate')
+            for x509_elem_obj in x509_list:
+                # if there is no certificate type then x509_elem_obj will not actually be a dictionary
+                if isinstance(x509_elem_obj, dict):
+                    if x509_elem_obj.get('@use') != cert_type:
+                        continue
+                    x509_dict[x509_elem_obj.get('@use')] = x509_elem_obj.get('ds:KeyInfo').get('ds:X509Data').get(
+                        'ds:X509Certificate')
+                else:
+                    x509_dict['unknown'] = x509_list.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
                 return x509_dict
                 # If no Certificate available raise an exception
         raise Exception("No X509 certificate of type:%s found" % cert_type)
