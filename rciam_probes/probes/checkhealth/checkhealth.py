@@ -317,7 +317,7 @@ def parse_arguments(args):
                         default=ParamDefaults.GECKODRIVER_PATH.value)
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=ParamDefaults.LOG_FILE.value)
     parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
-                        choices=['debug', 'info', 'warning', 'error', 'critical'])
+                        choices=['debug', 'info', 'warning', 'error', 'critical'], default=LoggingLevel.error.name)
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
                         choices=[80, 443], default=443, type=int)
     parser.add_argument('--basic_auth', '-b', dest="basic_auth",

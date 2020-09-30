@@ -44,7 +44,7 @@ optional arguments:
   -c CRITICAL,  --critical CRITICAL   remaining days threshold for critical
   -w WARNING,   --warning WARNING     remaining days threshold for warning
   -s CERTUSE,   --certuse CERTUSE     type of certificate {signing, encryption, all}
-  -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}
+  -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}, defaults to error
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
   -p PORT,      --port PORT           port the probe will target
   -t TIMEOUT,   --timeout TIMEOUT     number of seconds the probe will wait for response before timeout

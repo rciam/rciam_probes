@@ -29,34 +29,30 @@ def configure_logger(args):
     if not args.log:
         args.log = ParamDefaults.LOG_FILE.value
 
-    # Set the log verbosity
-    if not args.verbose:
-        args.verbose = LoggingLevel.info.value
-    else:
-        args.verbose = getattr(LoggingLevel, args.verbose).value
+    # Set the log verbosity, Defaults to error
+    args.verbose = getattr(LoggingLevel, args.verbose).value
 
     # Create the Logger
     logger = logging.getLogger(__name__)
     logger.setLevel(args.verbose)
 
-    # Create the log file if not exists
-    # First try in the /var/log/rciam_probes path. This is the path used when
-    # installing with rpm. If the path is not available then create it under
-    # current user home directory
-    log_path = Path('/').joinpath('var').joinpath('log').joinpath('rciam_probes')
-    if not log_path.is_dir():
-        log_path = Path.home().joinpath('var').joinpath('log').joinpath('rciam_probes')
-        log_path.mkdir(0o755, parents=True, exist_ok=True)
-
-    log_file = log_path.joinpath('rciam_probes.log')
-    log_file.touch(exist_ok=True)
-    args.log = str(log_file)
-    chown(args.log, user=args.logowner, group=args.logowner)
-
     if args.console:
         # Create the Handler for logging data to stdout
         logger_handler = logging.StreamHandler(sys.stdout)
     else:
+        # Create the log file if not exists
+        # First try in the /var/log/rciam_probes path. This is the path used when
+        # installing with rpm. If the path is not available then create it under
+        # current user home directory
+        log_path = Path('/').joinpath('var').joinpath('log').joinpath('rciam_probes')
+        if not log_path.is_dir():
+            log_path = Path.home().joinpath('var').joinpath('log').joinpath('rciam_probes')
+            log_path.mkdir(0o755, parents=True, exist_ok=True)
+
+        log_file = log_path.joinpath('rciam_probes.log')
+        log_file.touch(exist_ok=True)
+        args.log = str(log_file)
+        chown(args.log, user=args.logowner, group=args.logowner)
         # Create the Handler for logging data to a file
         logger_handler = logging.FileHandler(args.log)
     logger_handler.setLevel(args.verbose)
