@@ -98,7 +98,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
-* Mon Jul 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
+* Mon Oct 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
+- Changed verbosity notation to counting -v
 - Enabled logging output both into a file or into stdout
 - Added Service Provider landing page into configuration list. Optional parameter
 - Added Logrotate support

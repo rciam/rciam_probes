@@ -30,7 +30,7 @@ def configure_logger(args):
         args.log = ParamDefaults.LOG_FILE.value
 
     # Set the log verbosity, Defaults to error
-    args.verbose = getattr(LoggingLevel, args.verbose).value
+    args.verbose = get_verbosity_level(args.verbose)
 
     # Create the Logger
     logger = logging.getLogger(__name__)
@@ -245,3 +245,27 @@ def get_nagios_status_n_code(var_chk, warning_th, critical_th, logger=None):
 def get_package_root():
     """Returns project root folder."""
     return pkg_resources.get_distribution('rciam_probes').location
+
+
+def get_verbosity_level(raw_argument):
+    """
+    Return the correct logging level
+    :param raw_argument: The argument count
+    :type raw_argument: int
+
+    :return: log level or -1 if the input is not int
+    :rtype: LoggingLevel, int
+    """
+    if not isinstance(raw_argument, int):
+        return -1
+
+    if raw_argument == 0:
+        return LoggingLevel.critical.value
+    elif raw_argument == 1:
+        return LoggingLevel.error.value
+    elif raw_argument == 2:
+        return LoggingLevel.warning.value
+    elif raw_argument == 3:
+        return LoggingLevel.info.value
+    elif raw_argument == 4:
+        return LoggingLevel.debug.value

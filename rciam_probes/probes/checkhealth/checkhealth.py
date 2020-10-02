@@ -50,10 +50,16 @@ class RciamHealthCheck:
         if self.__browser is not None:
             self.__browser.close()
 
-        self.__browser = webdriver.Firefox(options=self.__options,
-                                           firefox_binary=self.__firefox_binary,
-                                           executable_path=self.__geckodriver_binary,
-                                           log_path=self.__args.log)
+        if(self.__args.console):
+            self.__browser = webdriver.Firefox(options=self.__options,
+                                               firefox_binary=self.__firefox_binary,
+                                               executable_path=self.__geckodriver_binary)
+        else:
+            self.__browser = webdriver.Firefox(options=self.__options,
+                                               firefox_binary=self.__firefox_binary,
+                                               executable_path=self.__geckodriver_binary,
+                                               log_path=self.__args.log)
+
         self.__wait = WebDriverWait(self.__browser, self.__args.timeout)
 
     def __hide_cookie_policy(self):
@@ -316,8 +322,8 @@ def parse_arguments(args):
     parser.add_argument('--geckodriver', '-g', dest="geckodriver", help='geckodriver binary full path',
                         default=ParamDefaults.GECKODRIVER_PATH.value)
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=ParamDefaults.LOG_FILE.value)
-    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity',
-                        choices=['debug', 'info', 'warning', 'error', 'critical'], default=LoggingLevel.error.name)
+    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity, levels are -v to -vvvv', action="count",
+                         default=0)
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
                         choices=[80, 443], default=443, type=int)
     parser.add_argument('--basic_auth', '-b', dest="basic_auth",

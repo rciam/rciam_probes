@@ -36,7 +36,7 @@ make clean
 ## Usage
 ### Metadata Health
 ```bash
-checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v VERBOSE] [-p PORT]
+checkcert [-h] [-w WARNING] [-c CRITICAL] [-H HOSTNAME] [-e ENDPOINT] [-s CERTUSE] [-l LOG] [-v|--verbose Verbose] [-p PORT]
             [-t TIMEOUT] [-C|--console Console]
 
 optional arguments:
@@ -44,7 +44,7 @@ optional arguments:
   -c CRITICAL,  --critical CRITICAL   remaining days threshold for critical
   -w WARNING,   --warning WARNING     remaining days threshold for warning
   -s CERTUSE,   --certuse CERTUSE     type of certificate {signing, encryption, all}
-  -v VERBOSE,   --verbose VERBOSE     level of verboseness in log messages {debug,info,warning,error,critical}, defaults to error
+  -v ,          --verbose VERBOSE     level of verboseness in log messages {-v, -vv, -vvv, -vvv}, defaults to critical
   -l LOG,       --log LOG             the logfile the probe will use to append its messages, provide full path
   -p PORT,      --port PORT           port the probe will target
   -t TIMEOUT,   --timeout TIMEOUT     number of seconds the probe will wait for response before timeout
@@ -63,7 +63,7 @@ sample output:  SSL_CERT(signing) OK - x509 certificate 'test-eosc-hub.ggus.eu' 
 ```
 For the case of type:all the output will be different
 ```bash
-sample command: checkcert -H example.com -e proxy/saml2/idp/metadata.php -w 20 -c 10 -t all
+sample command: checkcert -H example.com -e proxy/saml2/idp/metadata.php -w 20 -c 10 -t all -v
 
 sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Cert Status'=0
 ```
@@ -75,7 +75,7 @@ checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVI
 optional arguments:
   -h,                  --help                      show this help message and exit
   -t TIMEOUT,          --timeout TIMEOUT           number of seconds the probe will wait for response before timeout
-  -v VERBOSE,          --verbose VERBOSE           level of verboseness in log messages {debug,info,warning,error,critical}
+  -v ,                 --verbose VERBOSE     level of verboseness in log messages {-v, -vv, -vvv, -vvv}, defaults to critical
   -l LOG,              --log LOG                   the logfile the probe will use to append its messages, provide full path
   -p PORT,             --port PORT                 port the probe will target
   -b,                  --basic_auth                login flow with Basic Authentication
@@ -94,7 +94,7 @@ required arguments:
 #### CLI command
 ## Form Based Logins
 ```bash
-sample command: checklogin -t 20 -v debug -u $USER -a $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
+sample command: checklogin -t 20 -vv -u $USER -a $PASSWORD -s https://example.com/ssp/module.php/core/authenticate.php?as=test-sp
                            -i https://idp.example.com/idp/shibboleth -H example.com -g /path/to/geckodriver
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
@@ -102,7 +102,7 @@ sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ## Basic Authentication Logins
 ```bash
 sample command: checklogin -s https://sp.example.com/ssp/module.php/core/authenticate.php?as=test-sp -i https://idp.example.com/idp/shibboleth
-                            -f /usr/bin/firefox -v debug -t 20 -g /path/to/geckodriver -u $USER -a $PASSWORD --basic_auth
+                            -f /usr/bin/firefox -vvv -t 20 -g /path/to/geckodriver -u $USER -a $PASSWORD --basic_auth
 
 sample output:  SP Login succeeded(14.92sec time) | 'Login'=14.92s
 ```
