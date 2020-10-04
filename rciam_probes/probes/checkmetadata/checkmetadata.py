@@ -67,7 +67,7 @@ class RciamMetadataCheck:
                                                                )
 
         except Exception as e:
-            self.__logger.error(e)
+            self.__logger.critical(e)
             print("Unknown State")
             exit(NagiosStatusCode.UNKNOWN.value)
 

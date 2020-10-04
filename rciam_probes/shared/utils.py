@@ -267,5 +267,5 @@ def get_verbosity_level(raw_argument):
         return LoggingLevel.warning.value
     elif raw_argument == 3:
         return LoggingLevel.info.value
-    elif raw_argument == 4:
+    elif raw_argument >= 4:
         return LoggingLevel.debug.value

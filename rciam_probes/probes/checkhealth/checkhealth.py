@@ -140,7 +140,7 @@ class RciamHealthCheck:
                     continue_btn.click()
                     self.__cached_cookies = self.__browser.get_cookies()
             except TimeoutException:
-                self.__logger.info('No simplesamlPHP modules found. Continue...')
+                self.__logger.warning('No simplesamlPHP modules found. Continue...')
                 ssp_modules = False
 
     def __idp_authenticate(self):
@@ -171,7 +171,7 @@ class RciamHealthCheck:
             except Exception as e:
                 # Tried to authenticate with the alert but failed
                 # Trying again with request library in finally
-                self.__logger.info(AuthenticateTxt.AlertFailed.value)
+                self.__logger.warning(AuthenticateTxt.AlertFailed.value)
             else:
                 self.__logger.info(AuthenticateTxt.Success.value)
             finally:
@@ -229,7 +229,7 @@ class RciamHealthCheck:
             self.__browser.find_element_by_css_selector("form [type='submit'][value='Accept']").click()
             # Get the source code from the page and check if authentication failed
         except TimeoutException:
-            self.__logger.info('Idp has no consent page. Continue...')
+            self.__logger.warning('Idp has no consent page. Continue...')
 
     def __get_attrs_checking_dummy_sps(self):
         """Get the attributes available in the dummy SP configured with simplesamlPHP"""
@@ -297,7 +297,7 @@ class RciamHealthCheck:
             msg = "State " + NagiosStatusCode.UNKNOWN.name
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.error(e)
+            self.__logger.critical(e)
         finally:
             self.__browser.quit()
             self.__logger.info(msg)
