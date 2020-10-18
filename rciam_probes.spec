@@ -7,8 +7,7 @@
 
 Name: rciam_probes
 Summary: RCIAM related probes
-Version: 1.0.5
-# fixme: macro could not be resolved
+Version: 1.1.0
 Release: 1%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -98,8 +97,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
-* Mon Oct 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.0.5
-- Changed verbosity notation to counting -v
+* Mon Oct 19 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.0
+- Changed verbosity notation. Default is critical. -v error, -vv warning, -vvv info, -vvvv debug
 - Enabled logging output both into a file or into stdout
 - Added Service Provider landing page into configuration list. Optional parameter
 - Added Logrotate support

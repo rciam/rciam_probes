@@ -1,13 +1,13 @@
-cffi==1.14.0
+cffi==1.14.3
 cryptography==2.9.2
 lxml==4.5.2
 pycparser==2.20.0
 pyOpenSSL==19.1.0
 six==1.15.0
-urllib3==1.25.9
+urllib3==1.25.10
 xmltodict==0.12.0
 requests==2.24.0
 selenium==3.141.0
-beautifulsoup4==4.9.1
-check-manifest==0.41
+beautifulsoup4==4.9.3
+check-manifest==0.44
 setuptools==49.2.0
