@@ -77,7 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %dir %{_sysconfdir}/%{logrotate_dir}/
 %attr(0644,root,root) %{_sysconfdir}/%{logrotate_dir}/%{name}
 # documentation
-%doc README.md CHANGELOG.md
+%doc README.md
 %license LICENSE
 
 #%post
