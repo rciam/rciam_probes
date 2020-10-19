@@ -13,7 +13,7 @@ pipeline {
         stage ('Build Centos 7') {
             agent {
                 docker {
-                    image 'argo.registry:5000/epel-7-ams'
+                    image 'argo.registry:5000/epel-7-rciam'
                     args '-u jenkins:jenkins'
                 }
             }
