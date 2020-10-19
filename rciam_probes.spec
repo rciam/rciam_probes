@@ -28,7 +28,7 @@ Requires: python36-beautifulsoup4
 Requires: python36-requests
 Requires: firefox
 Requires: logrotate
-Requires: python3-selenium # This is not supported for Centos7
+Requires: python3-selenium
 
 
 %description
