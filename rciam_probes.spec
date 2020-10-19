@@ -97,6 +97,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Tue Oct 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.1
+- rciam_probes.spec fixed
 * Mon Oct 19 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.0
 - Changed verbosity notation. Default is critical. -v error, -vv warning, -vvv info, -vvvv debug
 - Enabled logging output both into a file or into stdout
