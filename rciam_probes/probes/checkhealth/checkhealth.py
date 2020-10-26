@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import os
 import re
-import sys
 from urllib.parse import *
 
 from selenium import webdriver
@@ -53,12 +53,13 @@ class RciamHealthCheck:
         if(self.__args.console):
             self.__browser = webdriver.Firefox(options=self.__options,
                                                firefox_binary=self.__firefox_binary,
-                                               executable_path=self.__geckodriver_binary)
+                                               executable_path=self.__geckodriver_binary,
+                                               service_log_path=os.path.devnull)
         else:
             self.__browser = webdriver.Firefox(options=self.__options,
                                                firefox_binary=self.__firefox_binary,
                                                executable_path=self.__geckodriver_binary,
-                                               log_path=self.__args.log)
+                                               service_log_path=self.__args.log)
 
         self.__wait = WebDriverWait(self.__browser, self.__args.timeout)
 
