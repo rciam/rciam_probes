@@ -54,12 +54,12 @@ class RciamHealthCheck:
             self.__browser = webdriver.Firefox(options=self.__options,
                                                firefox_binary=self.__firefox_binary,
                                                executable_path=self.__geckodriver_binary,
-                                               og_path=os.path.devnull)
+                                               log_path=os.path.devnull)
         else:
             self.__browser = webdriver.Firefox(options=self.__options,
                                                firefox_binary=self.__firefox_binary,
                                                executable_path=self.__geckodriver_binary,
-                                               og_path=self.__args.log)
+                                               log_path=self.__args.log)
 
         self.__wait = WebDriverWait(self.__browser, self.__args.timeout)
 
