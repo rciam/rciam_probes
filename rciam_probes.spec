@@ -7,7 +7,7 @@
 
 Name: rciam_probes
 Summary: RCIAM related probes
-Version: 1.1.2
+Version: 1.1.3
 Release: 1%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -97,7 +97,9 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
-* Tue Oct 26 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.2
+* Tue Oct 27 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.3
+- changed webdriver.(Reverted)Firefox log path attribute from `service_log_path` to deprecated `log_path`
+* Mon Oct 26 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.2
 - changed webdriver.Firefox log path attribute from deprecated `log_path` to `service_log_path`
 - redirect Geckodriver's logs to dev/null if on -C(console) mode
 * Tue Oct 20 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.1
