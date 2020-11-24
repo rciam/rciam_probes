@@ -4,6 +4,7 @@
 import argparse
 import os
 import re
+import time as t
 from urllib.parse import *
 
 from selenium import webdriver
@@ -130,6 +131,7 @@ class RciamHealthCheck:
         ssp_modules = True
         while ssp_modules:
             try:
+                t.sleep(1)
                 self.__wait.until(EC.presence_of_element_located((By.XPATH, "//form[1]")))
                 self.__wait.until(EC.presence_of_element_located((By.ID, "cookies")))
                 self.__wait.until(EC.element_to_be_clickable((By.ID, "yesbutton")))
@@ -370,7 +372,7 @@ def firefox_profile(firefox_profile):
     firefox_profile.set_preference("content.notify.interval", 500000)
     firefox_profile.set_preference("content.notify.ontimer", True)
     firefox_profile.set_preference("content.switch.threshold", 250000)
-    firefox_profile.set_preference("browser.cache.memory.capacity", 65536)  # Increase the cache capacity.
+    # firefox_profile.set_preference("browser.cache.memory.capacity", 65536)  # Increase the cache capacity.
     firefox_profile.set_preference("browser.startup.homepage", "about:blank")
     firefox_profile.set_preference("reader.parse-on-load.enabled", False)  # Disable reader, we won't need that.
     firefox_profile.set_preference("browser.pocket.enabled", False)  # Duck pocket too!
@@ -397,6 +399,10 @@ def firefox_profile(firefox_profile):
     firefox_profile.set_preference("general.startup.browser", False)
     firefox_profile.set_preference("plugin.default_plugin_disabled", False)
     firefox_profile.set_preference("permissions.default.image", 2)
+    firefox_profile.set_preference('browser.cache.disk.enable', False)
+    firefox_profile.set_preference('browser.cache.memory.enable', False)
+    firefox_profile.set_preference('browser.cache.offline.enable', False)
+
 
 # Entry point
 if __name__ == "__main__":
