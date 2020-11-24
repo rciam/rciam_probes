@@ -85,6 +85,7 @@ class RciamHealthCheck:
     def __wait_for_spinner(self):
         """Wait for the loading spinner to disappear"""
         try:
+            t.sleep(1)
             self.__wait.until(EC.invisibility_of_element_located((By.ID, 'loader')))
         except TimeoutException:
             self.__logger.warning('No loader found.Ignore and continue.')
@@ -108,6 +109,7 @@ class RciamHealthCheck:
         idp_list = self.__args.identity.split(',')
         for idp in idp_list:
             # Log the title of the view
+            t.sleep(1)
             self.__logger.debug(self.__browser.title)
             # urlencode idpentityid
             idp_entity_id_url_enc = quote(idp, safe='')
@@ -260,6 +262,7 @@ class RciamHealthCheck:
             lambda driver: self.__browser.current_url.strip('/').find(landing_page.strip('/')) == 0)
         # self.__wait.until(
         #     lambda driver: self.__browser.current_url.strip('/').find('https://testvm.agora.grnet.gr/ui') == 0)
+        t.sleep(1)
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "title")))
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
