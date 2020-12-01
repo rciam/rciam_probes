@@ -352,7 +352,7 @@ def print_output(args, msg):
             print(ParamDefaults.JSON_PATH.value + " does not exist")
             print(msg)
             return
-        ofile = fpath.joinpath(filename + '.json')
+        ofile = fpath.joinpath(filename)
         ofile.touch(exist_ok=True)
         ofile.write_text(msg)
     else:
