@@ -301,7 +301,7 @@ def construct_out_filename(args, file_extension):
     :return: filename
     :rtype string
     """
-    filename2hash = args.sp + args.identity
+    filename2hash = args.sp + args.identity + args.hostname
     filename_postfix = hashlib.md5(filename2hash.encode()).hexdigest()
     return "out_" + str(filename_postfix) + "." + file_extension
 
@@ -330,7 +330,7 @@ def construct_probe_msg(args, value, vtype="s"):
         data['sp'] = args.sp
         return json.dumps(data)
     else:
-        if type(value) == int or float:
+        if type(value) == int or type(value) == float:
             return tpl.login_health_check_nagios_tmpl.substitute(tpl.defaults_login_health_check, time=value, type=vtype)
         else:
             return value

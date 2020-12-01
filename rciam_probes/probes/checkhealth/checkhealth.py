@@ -12,6 +12,7 @@ from selenium.common.exceptions import *
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from json.decoder import JSONDecodeError
 
 from rciam_probes.shared.authentication import *
 # import methods from the lib directory
@@ -310,6 +311,11 @@ class RciamHealthCheck:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
+        except JSONDecodeError as e:
+            msg_value = "State " + NagiosStatusCode.UNKNOWN.name
+            # Log Print here
+            code = NagiosStatusCode.UNKNOWN.value
+            self.__logger.critical("JSON decode error.JSON invalid format or not available.")
         except Exception as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             # Log Print here
