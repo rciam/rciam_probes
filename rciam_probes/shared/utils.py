@@ -7,6 +7,8 @@ import pkg_resources
 import requests
 import xmltodict
 import time as t
+import hashlib
+import json
 
 from shutil import chown
 from pathlib import Path
@@ -15,6 +17,7 @@ from datetime import datetime
 from time import mktime, time, gmtime
 
 from rciam_probes.shared.enums import ParamDefaults, LoggingLevel, NagiosStatusCode
+import rciam_probes.shared.templates as tpl
 
 
 def configure_logger(args):
@@ -81,6 +84,21 @@ def get_xml(url, timeout=5):
     requests.packages.urllib3.disable_warnings()
     response = requests.get(url, verify=False, timeout=timeout)
     return xmltodict.parse(response.text)
+
+def get_json(url, timeout=5):
+    """
+    Get and parse a json file available through a url
+    :param url: URL
+    :type url: string
+
+    :return: Data parsed from json
+    :rtype: dict
+
+    :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
+    """
+    requests.packages.urllib3.disable_warnings()
+    response = requests.get(url, verify=False, timeout=timeout)
+    return json.loads(response.text)
 
 
 def gen_dict_extract(var, key):
@@ -269,3 +287,73 @@ def get_verbosity_level(raw_argument):
         return LoggingLevel.info.value
     elif raw_argument >= 4:
         return LoggingLevel.debug.value
+
+
+def construct_out_filename(args, file_extension):
+    """
+    Get the argument list from command line and construct the output filename
+    :param args: arguments retrieved from command line
+    :type args: dict
+
+    :param file_extension: the extension type of the file
+    :type file_extension: string
+
+    :return: filename
+    :rtype string
+    """
+    filename2hash = args.sp + args.identity
+    filename_postfix = hashlib.md5(filename2hash.encode()).hexdigest()
+    return "out_" + str(filename_postfix) + "." + file_extension
+
+
+def construct_probe_msg(args, value, vtype="s"):
+    """
+    Get the argument list from command line, the outcome of the test and construct the actual message in the desired format
+    :param args: arguments retrieved from command line
+    :type args: dict
+
+    :param value: the payload of the message
+    :type string|number
+
+    :param vtype: the type of the value
+    :type vtype: str
+
+    :return: message
+    :rtype string
+    """
+    if args.json:
+        data = {}
+        data['date'] = datetime.now().isoformat()
+        data['value'] = value
+        data['vtype'] = vtype
+        data['idp'] = args.identity
+        data['sp'] = args.sp
+        return json.dumps(data)
+    else:
+        if type(value) == int or float:
+            return tpl.login_health_check_nagios_tmpl.substitute(tpl.defaults_login_health_check, time=value, type=vtype)
+        else:
+            return value
+
+
+def print_output(args, msg):
+    """
+    Get the argument list from command line and the message, then print the output.
+    :param args: arguments retrieved from command line
+    :type args: dict
+
+    :param value: message to print
+    :type string
+    """
+    if args.json:
+        filename = construct_out_filename(args, "json")
+        fpath = Path('/').joinpath('var').joinpath('www').joinpath('html')
+        if not fpath.is_dir():
+            print(ParamDefaults.JSON_PATH.value + " does not exist")
+            print(msg)
+            return
+        ofile = fpath.joinpath(filename + '.json')
+        ofile.touch(exist_ok=True)
+        ofile.write_text(msg)
+    else:
+        print(msg)

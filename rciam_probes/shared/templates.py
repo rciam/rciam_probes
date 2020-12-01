@@ -1,10 +1,11 @@
 from string import Template
 
 """Nagios template output for Login health check"""
-login_health_check_tmpl = Template("SP Login succeeded(${time}sec time) | 'Login'=${time}s")
+login_health_check_nagios_tmpl = Template("SP Login succeeded(${time}${type} time) | 'Login'=${time}${type}")
 
 defaults_login_health_check = {
-    "time": -1
+    "time": -1,
+    "type": "s"
 }
 
 """Nagios template output for Cert health check"""

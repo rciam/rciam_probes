@@ -20,6 +20,7 @@ class ParamDefaults(Enum):
     LOG_OWNER = "nagios"
     LOG_FORMATTER = "%(asctime)s %(processName)s[%(process)d]: %(levelname)s: %(filename)s[%(funcName)s] - %(message)s"
     FIREFOX_PATH = r"/usr/bin/firefox"
+    JSON_PATH = r"/var/www/html"
     GECKODRIVER_PATH = r"/usr/include/rciam_probes/driver/geckodriver"
 
 

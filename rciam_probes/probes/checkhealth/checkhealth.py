@@ -40,8 +40,10 @@ class RciamHealthCheck:
 
         # configure the logger
         self.__logger = configure_logger(self.__args)
-        # configure the web driver
-        self.__init_browser()
+        # We do not need to create a web object if we are fetching the data from a url
+        if self.__args.inlocation is None:
+            # configure the web driver
+            self.__init_browser()
 
     def __init_browser(self):
         """ configure the web driver """
@@ -85,7 +87,6 @@ class RciamHealthCheck:
     def __wait_for_spinner(self):
         """Wait for the loading spinner to disappear"""
         try:
-            t.sleep(1)
             self.__wait.until(EC.invisibility_of_element_located((By.ID, 'loader')))
         except TimeoutException:
             self.__logger.warning('No loader found.Ignore and continue.')
@@ -109,7 +110,6 @@ class RciamHealthCheck:
         idp_list = self.__args.identity.split(',')
         for idp in idp_list:
             # Log the title of the view
-            t.sleep(1)
             self.__logger.debug(self.__browser.title)
             # urlencode idpentityid
             idp_entity_id_url_enc = quote(idp, safe='')
@@ -133,7 +133,6 @@ class RciamHealthCheck:
         ssp_modules = True
         while ssp_modules:
             try:
-                t.sleep(1)
                 self.__wait.until(EC.presence_of_element_located((By.XPATH, "//form[1]")))
                 self.__wait.until(EC.presence_of_element_located((By.ID, "cookies")))
                 self.__wait.until(EC.element_to_be_clickable((By.ID, "yesbutton")))
@@ -262,7 +261,6 @@ class RciamHealthCheck:
             lambda driver: self.__browser.current_url.strip('/').find(landing_page.strip('/')) == 0)
         # self.__wait.until(
         #     lambda driver: self.__browser.current_url.strip('/').find('https://testvm.agora.grnet.gr/ui') == 0)
-        t.sleep(1)
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "head")))
         self.__wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "title")))
         self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
@@ -284,37 +282,45 @@ class RciamHealthCheck:
         # start counting progress time
         self.__start_time = start_ticking()
         try:
-            # Go to Discovery Service and choose your Identity Provider
-            self.__sp_redirect_disco_n_click()
-            # Authenticate
-            self.__idp_authenticate()
-            # Some IdPs might request explicit consent for the transmitted attributes
-            # todo: Currently supporting only Consent pages from Shibboleth IdPs
-            self.__idp_shib_consent_page()
-            # You came back from the Idp. Iterate over all SSP modules and press continue
-            self.__accept_all_ssp_modules()
-            # Verify that the SPs home page loaded
-            self.__verify_sp_home_page_loaded()
+            if self.__args.inlocation is None:
+                # Go to Discovery Service and choose your Identity Provider
+                self.__sp_redirect_disco_n_click()
+                # Authenticate
+                self.__idp_authenticate()
+                # Some IdPs might request explicit consent for the transmitted attributes
+                # todo: Currently supporting only Consent pages from Shibboleth IdPs
+                self.__idp_shib_consent_page()
+                # You came back from the Idp. Iterate over all SSP modules and press continue
+                self.__accept_all_ssp_modules()
+                # Verify that the SPs home page loaded
+                self.__verify_sp_home_page_loaded()
+                msg_value = round(stop_ticking(self.__start_time), 2)
+                # msg_value = login_health_check_nagios_tmpl.substitute(defaults_login_health_check, time=login_finished)
+            else:
+                raw_data = get_json(self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
+                msg_value = raw_data['value']
+                msg_type = raw_data['vtype']
+                code = NagiosStatusCode.OK.value
             code = NagiosStatusCode.OK.value
-            msg = login_health_check_tmpl.substitute(defaults_login_health_check,
-                                                     time=round(stop_ticking(self.__start_time), 2))
         except TimeoutException:
-            msg = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
+            msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
         except ErrorInResponseException:
-            msg = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
+            msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
         except Exception as e:
-            msg = "State " + NagiosStatusCode.UNKNOWN.name
+            msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
             self.__logger.critical(e)
         finally:
-            self.__browser.quit()
+            if self.__browser is not None:
+                self.__browser.quit()
+            msg = construct_probe_msg(self.__args, msg_value)
             self.__logger.info(msg)
-            print(msg)
+            print_output(self.__args, msg)
             exit(code)
 
 
@@ -345,8 +351,13 @@ def parse_arguments(args):
     parser.add_argument('--console', '-C', dest="console",
                         help='No Value needed. The presence of the flag indicates log output in stdout',
                         action='store_true')
+    parser.add_argument('--json', '-J', dest="json",
+                        help='No Value needed. The presence of the flag indicates probe output in /var/www/html directory, in file xxx.json',
+                        action='store_true')
     parser.add_argument('--timeout', '-t', dest="timeout", help='Timeout after x amount of seconds. Defaults to 5s.',
                         type=int, default=5)
+    parser.add_argument('--inlocation', '-e', dest="inlocation", help='URL location to get raw monitoring data from.',
+                        type=str, required=False)
     parser.add_argument('--sp', '-s', dest="sp",
                         help='Service Provider Login Authentication Protected URL, e.g. https://example.com/ssp/module.php/core/authenticate.php'
                              '?as=example-sp',
