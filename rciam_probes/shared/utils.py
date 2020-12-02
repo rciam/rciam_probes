@@ -331,6 +331,7 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
         data['vtype'] = vtype
         data['idp'] = args.identity
         data['sp'] = args.sp
+        data['hostname'] = args.hostname
         data['xcode'] = xcode
         return json.dumps(data)
     else:
