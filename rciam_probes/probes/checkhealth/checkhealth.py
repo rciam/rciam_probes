@@ -296,35 +296,47 @@ class RciamHealthCheck:
                 # Verify that the SPs home page loaded
                 self.__verify_sp_home_page_loaded()
                 msg_value = round(stop_ticking(self.__start_time), 2)
+                msg_vtype = 's'
                 # msg_value = login_health_check_nagios_tmpl.substitute(defaults_login_health_check, time=login_finished)
+                code = NagiosStatusCode.OK.value
             else:
                 raw_data = get_json(self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
-                msg_value = raw_data['value']
-                msg_type = raw_data['vtype']
-                code = NagiosStatusCode.OK.value
-            code = NagiosStatusCode.OK.value
+                # Check the timestamp
+                validate = timestamp_check(raw_data['date'])
+                if validate:
+                    msg_value = raw_data['value']
+                    msg_vtype = raw_data['vtype']
+                    code = raw_data['xcode']
+                else:
+                    msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Service became Stale)"
+                    # Log print here
+                    code = NagiosStatusCode.UNKNOWN.value
         except TimeoutException:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
+            msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
         except ErrorInResponseException:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
+            msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
         except JSONDecodeError as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
+            msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
             self.__logger.critical("JSON decode error.JSON invalid format or not available.")
         except Exception as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
+            msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
             self.__logger.critical(e)
         finally:
             if self.__browser is not None:
                 self.__browser.quit()
-            msg = construct_probe_msg(self.__args, msg_value)
+            msg = construct_probe_msg(self.__args, msg_value, msg_vtype, code)
             self.__logger.info(msg)
             print_output(self.__args, msg)
             exit(code)

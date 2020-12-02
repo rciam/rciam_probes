@@ -306,7 +306,7 @@ def construct_out_filename(args, file_extension):
     return "out_" + str(filename_postfix) + "." + file_extension
 
 
-def construct_probe_msg(args, value, vtype="s"):
+def construct_probe_msg(args, value, vtype="s", xcode=0):
     """
     Get the argument list from command line, the outcome of the test and construct the actual message in the desired format
     :param args: arguments retrieved from command line
@@ -318,6 +318,9 @@ def construct_probe_msg(args, value, vtype="s"):
     :param vtype: the type of the value
     :type vtype: str
 
+    :param xcode: exit code from the experiment. Nagios like. Defaults to success
+    :type xcode: int
+
     :return: message
     :rtype string
     """
@@ -328,6 +331,7 @@ def construct_probe_msg(args, value, vtype="s"):
         data['vtype'] = vtype
         data['idp'] = args.identity
         data['sp'] = args.sp
+        data['xcode'] = xcode
         return json.dumps(data)
     else:
         if type(value) == int or type(value) == float:
@@ -357,3 +361,26 @@ def print_output(args, msg):
         ofile.write_text(msg)
     else:
         print(msg)
+
+
+def timestamp_check(date, vld_time_window=30):
+    """
+    :param date: timestamp in isoformat generated from datetime package
+    :type date: str
+
+    :param vld_time_window: time window which will validate the check as true. Represent minutes
+    :type int
+
+    :return: validation
+    :rtype boolean
+    """
+    if date is None:
+        return False
+    dnow = datetime.now()
+    dthen = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
+    ddiff = dnow - dthen
+    minutes = ddiff.total_seconds() / 60
+    if minutes > vld_time_window:
+        return False
+    else:
+        return True
