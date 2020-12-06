@@ -13,7 +13,7 @@ import json
 from shutil import chown
 from pathlib import Path
 from OpenSSL import crypto
-from datetime import datetime
+from datetime import datetime,timezone
 from time import mktime, time, gmtime
 
 from rciam_probes.shared.enums import ParamDefaults, LoggingLevel, NagiosStatusCode
@@ -326,7 +326,7 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
     """
     if args.json:
         data = {}
-        data['date'] = datetime.now().isoformat()
+        data['date'] = datetime.now(timezone.utc).isoformat()
         data['value'] = value
         data['vtype'] = vtype
         data['idp'] = args.identity
@@ -377,8 +377,9 @@ def timestamp_check(date, vld_time_window=30):
     """
     if date is None:
         return False
-    dnow = datetime.now()
+    dnow = datetime.now(timezone.utc)/home/repos/rciam_probes/rciam_probes/shared/utils.py
     dthen = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
+    # dthen = datetime.fromisoformat(date) # min version 3.7
     ddiff = dnow - dthen
     minutes = ddiff.total_seconds() / 60
     if minutes > vld_time_window:
