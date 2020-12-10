@@ -7,7 +7,7 @@
 
 Name: rciam_probes
 Summary: RCIAM related probes
-Version: 1.1.3
+Version: 1.2.0
 Release: 1%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -97,6 +97,9 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Fri Dec 11 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.0
+- Added configuration [-J|--json], export output in json format.
+- Added configuration [-e|--inlocation], import monitoring data from external source
 * Tue Oct 27 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.3
 - changed webdriver.(Reverted)Firefox log path attribute from `service_log_path` to deprecated `log_path`
 * Mon Oct 26 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.1.2
