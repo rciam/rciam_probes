@@ -324,7 +324,7 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
     :return: message
     :rtype string
     """
-    if args.json:
+    if args.json or args.json_path:
         data = {}
         data['date'] = datetime.now(timezone.utc).timestamp()
         data['value'] = value
@@ -341,7 +341,7 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
             return value
 
 
-def print_output(args, msg):
+def print_output(args, msg, logger=None):
     """
     Get the argument list from command line and the message, then print the output.
     :param args: arguments retrieved from command line
@@ -349,12 +349,28 @@ def print_output(args, msg):
 
     :param value: message to print
     :type string
+
+    :param value: logger object
+    :type object
     """
-    if args.json:
+    if args.json_path:
+        filename = construct_out_filename(args, "json")
+        fpath_array = args.json_path.split('/')
+        fpath_array = list(filter(None, fpath_array))
+        fpath = Path.home().joinpath(*fpath_array)
+        if not fpath.is_dir():
+            if logger is not None:
+                logger.debug(str(fpath) + " does not exist. Creating it.")
+            fpath.mkdir(0o755, parents=True, exist_ok=True)
+        ofile = fpath.joinpath(filename)
+        ofile.touch(exist_ok=True)
+        ofile.write_text(msg)
+    elif args.json:
         filename = construct_out_filename(args, "json")
         fpath = Path('/').joinpath('var').joinpath('www').joinpath('html')
         if not fpath.is_dir():
-            print(ParamDefaults.JSON_PATH.value + " does not exist")
+            if logger is not None:
+                logger.debug(ParamDefaults.JSON_PATH.value + " does not exist")
             print(msg)
             return
         ofile = fpath.joinpath(filename)

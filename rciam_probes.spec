@@ -97,6 +97,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Mon Dec 21 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> <unreleased>
+- Changed only the configuration [--json]. It now supports custom output paths.
 * Fri Dec 11 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.0
 - Added configuration [-J|--json], export output in json format.
 - Added configuration [-e|--inlocation], import monitoring data from external source
