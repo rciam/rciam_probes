@@ -338,7 +338,7 @@ class RciamHealthCheck:
                 self.__browser.quit()
             msg = construct_probe_msg(self.__args, msg_value, msg_vtype, code)
             self.__logger.info(msg)
-            print_output(self.__args, msg)
+            print_output(self.__args, msg, self.__logger)
             exit(code)
 
 
@@ -369,9 +369,11 @@ def parse_arguments(args):
     parser.add_argument('--console', '-C', dest="console",
                         help='No Value needed. The presence of the flag indicates log output in stdout',
                         action='store_true')
-    parser.add_argument('--json', '-J', dest="json",
-                        help='No Value needed. The presence of the flag indicates probe output in /var/www/html directory, in file xxx.json',
+    parser.add_argument('-J', dest="json",
+                        help='The presence of the flag indicates probe output in /var/www/html directory, in file xxx.json',
                         action='store_true')
+    parser.add_argument('--json', dest="json_path",
+                        help='Provide the output directory for the xxx.json file. The flag is mutually exclusive with -J.')
     parser.add_argument('--timeout', '-t', dest="timeout", help='Timeout after x amount of seconds. Defaults to 5s.',
                         type=int, default=5)
     parser.add_argument('--inlocation', '-e', dest="inlocation", help='URL location to get raw monitoring data from.',
@@ -389,7 +391,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.1', action='version')
     return parser.parse_args(args)
 
 def firefox_profile(firefox_profile):
