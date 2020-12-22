@@ -71,7 +71,7 @@ sample output:  SSL_CERT(signing) OK, SSL_CERT(encryption) OK | 'SSL Metadata Ce
 ```bash
 checklogin [-h] [-u USERNAME] [-p PASSWORD] [-f FIREFOX] [-i IDENTITY] [-s SERVICE PROVIDER] [-b|--basic_auth]
           [-t TIMEOUT] [-v VERBOSE] [-l LOG] [-H HOSTNAME] [-p PORT] [-r SERVICE PROVIDER] [-C|--console console]
-          [-J|--json] [-e|--inlocation]
+          [-J] [-e|--inlocation] [--json] [--version|-V]
 
 optional arguments:
   -h,                  --help                      show this help message and exit
@@ -84,7 +84,8 @@ optional arguments:
   -g GECKODRIVER,      --geckodriver GECKODRIVER   full path of the geckodriver executable(binary included)
   -r SERVICE,          --rp RP                     full URL of the Service Provider's Landing Page after a successfull authentication
   -C,                  --console                   enable log output to stdout
-  -J,                  --json                      enable output into json format
+  -J,                                              enable output into json format
+  --json,                                          enable output into json format and provide the output path. The path must be relative to Nagios home directory.
   -e,                  --inlocation                Pull monitoring data from an external source(URL endpoint)
 
 required arguments:
