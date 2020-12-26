@@ -309,6 +309,7 @@ class RciamHealthCheck:
                     code = raw_data['xcode']
                 else:
                     msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Service became Stale)"
+                    msg_vtype = '-'
                     # Log print here
                     code = NagiosStatusCode.UNKNOWN.value
         except TimeoutException:
