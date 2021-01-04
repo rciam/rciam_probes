@@ -362,6 +362,7 @@ def print_output(args, msg, logger=None):
             if logger is not None:
                 logger.debug(str(fpath) + " does not exist. Creating it.")
             fpath.mkdir(0o755, parents=True, exist_ok=True)
+        logger.debug("Write data in path: " + str(fpath))
         ofile = fpath.joinpath(filename)
         ofile.touch(exist_ok=True)
         ofile.write_text(msg)
@@ -373,6 +374,7 @@ def print_output(args, msg, logger=None):
                 logger.debug(ParamDefaults.JSON_PATH.value + " does not exist")
             print(msg)
             return
+        logger.debug("Write data in path: " + str(fpath))
         ofile = fpath.joinpath(filename)
         ofile.touch(exist_ok=True)
         ofile.write_text(msg)

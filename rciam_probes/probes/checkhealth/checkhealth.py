@@ -309,6 +309,7 @@ class RciamHealthCheck:
                     code = raw_data['xcode']
                 else:
                     msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Service became Stale)"
+                    msg_vtype = '-'
                     # Log print here
                     code = NagiosStatusCode.UNKNOWN.value
         except TimeoutException:
@@ -391,7 +392,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.1', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.2', action='version')
     return parser.parse_args(args)
 
 def firefox_profile(firefox_profile):
