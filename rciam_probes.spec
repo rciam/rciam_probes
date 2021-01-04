@@ -7,7 +7,7 @@
 
 Name: rciam_probes
 Summary: RCIAM related probes
-Version: 1.2.1
+Version: 1.2.2
 Release: 1%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -97,6 +97,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Mon Jan 04 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.2
+- Fixed debug messages and undefined var in stale status
 * Mon Dec 21 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.1
 - Changed only the configuration [--json]. It now supports custom output paths.
 * Fri Dec 11 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.0
