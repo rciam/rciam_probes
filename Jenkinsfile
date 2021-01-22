@@ -31,5 +31,26 @@ pipeline {
                 }
             }
         }
+        stage ('Build Centos 7 - slim') {
+            agent {
+                docker {
+                    image 'argo.registry:5000/epel-7-rciam'
+                    args '-u jenkins:jenkins'
+                }
+            }
+            steps {
+                echo 'Building Rpm...'
+                withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-rpm-repo', usernameVariable: 'REPOUSER', \
+                                                            keyFileVariable: 'REPOKEY')]) {
+                    sh "/home/jenkins/build-rpm.sh -w ${WORKSPACE} -b ${BRANCH_NAME} -d centos7 -p ${PROJECT_DIR} -s ${REPOKEY} -e no_selenium"
+                }
+                archiveArtifacts artifacts: '**/*.rpm', fingerprint: true
+            }
+            post {
+                always {
+                    cleanWs()
+                }
+            }
+        }
     }
 }
