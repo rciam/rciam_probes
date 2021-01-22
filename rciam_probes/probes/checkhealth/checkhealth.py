@@ -7,11 +7,18 @@ import re
 import time as t
 from urllib.parse import *
 
-from selenium import webdriver
-from selenium.common.exceptions import *
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+# Slim version comes with no Selenium and no firefox
+try:
+    from selenium import webdriver
+    from selenium.common.exceptions import *
+    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+    from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+except ImportError:
+    no_selenium = True
+else:
+    no_selenium = False
+
 from json.decoder import JSONDecodeError
 
 from rciam_probes.shared.authentication import *
@@ -42,7 +49,7 @@ class RciamHealthCheck:
         # configure the logger
         self.__logger = configure_logger(self.__args)
         # We do not need to create a web object if we are fetching the data from a url
-        if self.__args.inlocation is None:
+        if self.__args.inlocation is None or no_selenium:
             # configure the web driver
             self.__init_browser()
 
@@ -392,7 +399,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.2', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.3', action='version')
     return parser.parse_args(args)
 
 def firefox_profile(firefox_profile):

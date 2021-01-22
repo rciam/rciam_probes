@@ -4,11 +4,27 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 %define argo_path argo-monitoring/probes
 %define logrotate_dir logrotate.d
+# add --with no_selenium option, i.e. disable selenium
+%bcond_with no_selenium
+# Create package postfix
+%if %{with no_selenium}
+%define pkgname_postfix _slim
+%else
+%define pkgname_postfix %{nil}
+%endif
+# Apply the postfix to package name
+%define _rpmfilename %%{ARCH}/%%{NAME}%{pkgname_postfix}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
+
+#export PROJECT_DIR=/path/to/rciam_probes
+#export GIT_COMMIT=`cd $PROJECT_DIR && git log -1 --format="%H"`
+#export GIT_COMMIT_HASH=`cd $PROJECT_DIR && git log -1 --format="%H" | cut -c1-7`
+#DATE=`cd $PROJECT_DIR && git show -s --format=%ci ${GIT_COMMIT_HASH}`
+#export GIT_COMMIT_DATE=`date -d "$DATE" +'%Y%m%d%H%M%S'`
 
 Name: rciam_probes
 Summary: RCIAM related probes
-Version: 1.2.2
-Release: 1%{?dist}
+Version: 1.2.3
+Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
 Vendor: GRNET SA
@@ -26,10 +42,11 @@ Requires: python36-urllib3
 Requires: python36-xmltodict
 Requires: python36-beautifulsoup4
 Requires: python36-requests
-Requires: firefox
 Requires: logrotate
+%if %{with no_selenium}
+Requires: firefox
 Requires: python36-selenium
-
+%endif
 
 %description
 This package includes probes for RCIAM.
@@ -97,6 +114,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Fri Jan 22 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.3
+- Exclude selenium and firefox packages for `slim` version
 * Mon Jan 04 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.2
 - Fixed debug messages and undefined var in stale status
 * Mon Dec 21 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.1
