@@ -4,16 +4,6 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 %define argo_path argo-monitoring/probes
 %define logrotate_dir logrotate.d
-# add --with no_selenium option, i.e. disable selenium
-%bcond_with no_selenium
-# Create package postfix
-%if %{with no_selenium}
-%define pkgname_postfix _slim
-%else
-%define pkgname_postfix %{nil}
-%endif
-# Apply the postfix to package name
-%define _rpmfilename %%{ARCH}/%%{NAME}%{pkgname_postfix}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
 
 #export PROJECT_DIR=/path/to/rciam_probes
 #export GIT_COMMIT=`cd $PROJECT_DIR && git log -1 --format="%H"`
@@ -22,7 +12,8 @@
 #export GIT_COMMIT_DATE=`date -d "$DATE" +'%Y%m%d%H%M%S'`
 
 Name: rciam_probes
-Summary: RCIAM related probes
+Summary: RCIAM related probes - Complete
+Group: grnet/rciam
 Version: 1.2.3
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
@@ -43,16 +34,35 @@ Requires: python36-xmltodict
 Requires: python36-beautifulsoup4
 Requires: python36-requests
 Requires: logrotate
-%if %{with no_selenium}
 Requires: firefox
 Requires: python36-selenium
-%endif
 
 %description
 This package includes probes for RCIAM.
 Currently it supports the following components:
  - Metadata Health
  - Login Health
+
+%package consumer
+Summary: RCIAM probes - Checkmetadata, Checklogin Consumer
+Group: grnet/rciam
+Requires: python36-cffi
+Requires: python36-cryptography
+Requires: python36-lxml
+Requires: python36-pycparser
+Requires: python36-pyOpenSSL
+Requires: python36-six
+Requires: python36-urllib3
+Requires: python36-xmltodict
+Requires: python36-beautifulsoup4
+Requires: python36-requests
+Requires: logrotate
+
+%description consumer
+This package includes probes for RCIAM.
+Currently it supports the following components:
+ - Metadata Health
+ - Login Health - Consumer only
 
 %prep
 %setup -n %{name}-%{version}
@@ -86,6 +96,22 @@ rm -rf $RPM_BUILD_ROOT
 # driver
 %attr(0755,root,root) %dir %{_includedir}/%{name}/driver/
 %attr(0755,root,root) %{_includedir}/%{name}/driver/geckodriver
+# logs
+%attr(0744,nagios,nagios) %dir %{_localstatedir}/log/%{name}/
+# own the log file but do not install it
+%ghost %{_localstatedir}/log/%{name}/rciam_probes.log
+# logrotate
+%attr(0755,root,root) %dir %{_sysconfdir}/%{logrotate_dir}/
+%attr(0644,root,root) %{_sysconfdir}/%{logrotate_dir}/%{name}
+# documentation
+%doc README.md
+%license LICENSE
+
+%files consumer -f INSTALLED_FILES
+%defattr(-,root,root,0755)
+# binaries
+%dir %{_libexecdir}/%{argo_path}/%{name}
+%attr(0755,root,root) %{_libexecdir}/%{argo_path}/%{name}/*
 # logs
 %attr(0744,nagios,nagios) %dir %{_localstatedir}/log/%{name}/
 # own the log file but do not install it
