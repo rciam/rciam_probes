@@ -5,10 +5,17 @@
 %define argo_path argo-monitoring/probes
 %define logrotate_dir logrotate.d
 
+#export PROJECT_DIR=/path/to/rciam_probes
+#export GIT_COMMIT=`cd $PROJECT_DIR && git log -1 --format="%H"`
+#export GIT_COMMIT_HASH=`cd $PROJECT_DIR && git log -1 --format="%H" | cut -c1-7`
+#DATE=`cd $PROJECT_DIR && git show -s --format=%ci ${GIT_COMMIT_HASH}`
+#export GIT_COMMIT_DATE=`date -d "$DATE" +'%Y%m%d%H%M%S'`
+
 Name: rciam_probes
-Summary: RCIAM related probes
-Version: 1.2.2
-Release: 1%{?dist}
+Summary: RCIAM related probes - Complete
+Group: grnet/rciam
+Version: 1.2.3
+Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
 Vendor: GRNET SA
@@ -26,16 +33,36 @@ Requires: python36-urllib3
 Requires: python36-xmltodict
 Requires: python36-beautifulsoup4
 Requires: python36-requests
-Requires: firefox
 Requires: logrotate
+Requires: firefox
 Requires: python36-selenium
-
 
 %description
 This package includes probes for RCIAM.
 Currently it supports the following components:
  - Metadata Health
  - Login Health
+
+%package consumer
+Summary: RCIAM probes - Checkmetadata, Checklogin Consumer
+Group: grnet/rciam
+Requires: python36-cffi
+Requires: python36-cryptography
+Requires: python36-lxml
+Requires: python36-pycparser
+Requires: python36-pyOpenSSL
+Requires: python36-six
+Requires: python36-urllib3
+Requires: python36-xmltodict
+Requires: python36-beautifulsoup4
+Requires: python36-requests
+Requires: logrotate
+
+%description consumer
+This package includes probes for RCIAM.
+Currently it supports the following components:
+ - Metadata Health
+ - Login Health - Consumer only
 
 %prep
 %setup -n %{name}-%{version}
@@ -80,6 +107,22 @@ rm -rf $RPM_BUILD_ROOT
 %doc README.md
 %license LICENSE
 
+%files consumer -f INSTALLED_FILES
+%defattr(-,root,root,0755)
+# binaries
+%dir %{_libexecdir}/%{argo_path}/%{name}
+%attr(0755,root,root) %{_libexecdir}/%{argo_path}/%{name}/*
+# logs
+%attr(0744,nagios,nagios) %dir %{_localstatedir}/log/%{name}/
+# own the log file but do not install it
+%ghost %{_localstatedir}/log/%{name}/rciam_probes.log
+# logrotate
+%attr(0755,root,root) %dir %{_sysconfdir}/%{logrotate_dir}/
+%attr(0644,root,root) %{_sysconfdir}/%{logrotate_dir}/%{name}
+# documentation
+%doc README.md
+%license LICENSE
+
 #%post
 #if [ $1 == 1 ];then
 #  {
@@ -97,6 +140,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Fri Jan 22 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.3
+- Exclude selenium and firefox packages for `slim` version
 * Mon Jan 04 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.2
 - Fixed debug messages and undefined var in stale status
 * Mon Dec 21 2020 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.1
