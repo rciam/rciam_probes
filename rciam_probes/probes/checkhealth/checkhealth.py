@@ -72,13 +72,14 @@ class RciamHealthCheck:
                                                firefox_profile=self.__profile,
                                                executable_path=self.__geckodriver_binary,
                                                log_path=os.path.devnull)
+            self.__browser.set_window_size(1920, 1080)
         else:
             self.__browser = webdriver.Firefox(options=self.__options,
                                                firefox_binary=self.__firefox_binary,
                                                firefox_profile=self.__profile,
                                                executable_path=self.__geckodriver_binary,
                                                log_path=self.__args.log)
-
+            self.__browser.set_window_size(1920, 1080)
         self.__wait = WebDriverWait(self.__browser, self.__args.timeout)
 
     def __hide_cookie_policy(self):
@@ -95,7 +96,7 @@ class RciamHealthCheck:
     def __wait_for_spinner(self):
         """Wait for the loading spinner to disappear"""
         try:
-            self.__wait.until(EC.invisibility_of_element_located((By.ID, 'loader')))
+            self.__wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'loader-container')))
         except TimeoutException:
             self.__logger.warning('No loader found.Ignore and continue.')
 
@@ -399,7 +400,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.3', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.4', action='version')
     return parser.parse_args(args)
 
 def firefox_profile(firefox_profile):
