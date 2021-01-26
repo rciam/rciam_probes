@@ -66,7 +66,7 @@ class RciamHealthCheck:
         if self.__browser is not None:
             self.__browser.close()
 
-        if(self.__args.console):
+        if self.__args.console:
             self.__browser = webdriver.Firefox(options=self.__options,
                                                firefox_binary=self.__firefox_binary,
                                                firefox_profile=self.__profile,
@@ -95,10 +95,16 @@ class RciamHealthCheck:
 
     def __wait_for_spinner(self):
         """Wait for the loading spinner to disappear"""
+        self.__wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         try:
-            self.__wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'loader-container')))
-        except TimeoutException:
-            self.__logger.warning('No loader found.Ignore and continue.')
+            if self.__browser.find_element_by_class_name('loader-container'):
+                self.__wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'loader-container')))
+        except NoSuchElementException:
+            self.__logger.warning('No known loader found.Wait for 3s and resume.')
+            t.sleep(3)
+        except TimeoutException as te:
+            # Throw the exception back to the main thread to catch
+            raise Exception from te
 
     def __print_user_attributes(self):
         """
@@ -368,8 +374,9 @@ def parse_arguments(args):
     parser.add_argument('--geckodriver', '-g', dest="geckodriver", help='geckodriver binary full path',
                         default=ParamDefaults.GECKODRIVER_PATH.value)
     parser.add_argument('--log', '-l', dest="log", help='Logfile full path', default=ParamDefaults.LOG_FILE.value)
-    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity, levels are -v to -vvvv', action="count",
-                         default=0)
+    parser.add_argument('--verbose', '-v', dest="verbose", help='Set log verbosity, levels are -v to -vvvv',
+                        action="count",
+                        default=0)
     parser.add_argument('--port', '-p', dest="port", help='Set service port',
                         choices=[80, 443], default=443, type=int)
     parser.add_argument('--basic_auth', '-b', dest="basic_auth",
@@ -400,7 +407,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.4', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.5', action='version')
     return parser.parse_args(args)
 
 def firefox_profile(firefox_profile):

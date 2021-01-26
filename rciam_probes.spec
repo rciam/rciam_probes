@@ -14,7 +14,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 1.2.4
+Version: 1.2.5
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -140,8 +140,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
-* Mon Jan 25 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.4
-- Theme Loader class changed
+* Tue Jan 26 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.5
+- Fix cases where we do not use the default loader class
 * Fri Jan 22 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.3
 - Exclude selenium and firefox packages for `slim` version
 * Mon Jan 04 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.2
