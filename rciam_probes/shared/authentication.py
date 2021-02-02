@@ -4,10 +4,14 @@ import http
 import requests
 from bs4 import BeautifulSoup
 from requests.auth import HTTPBasicAuth
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-
+try:
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+except ImportError:
+    no_selenium = True
+else:
+    no_selenium = False
 
 def parse_cookies(http_response):
     """

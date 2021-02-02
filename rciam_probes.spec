@@ -142,6 +142,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Tue Feb 2 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.6
 - Improve logging
+- Fix Selenium Import for consumer package
 * Tue Jan 26 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.5
 - Fix cases where we do not use the default loader class
 * Fri Jan 22 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.3
