@@ -9,9 +9,9 @@ try:
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
 except ImportError:
-    no_selenium = True
+    has_selenium = False
 else:
-    no_selenium = False
+    has_selenium = True
 
 def parse_cookies(http_response):
     """

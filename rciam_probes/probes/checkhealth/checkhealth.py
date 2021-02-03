@@ -15,9 +15,9 @@ try:
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
     from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 except ImportError:
-    no_selenium = True
+    has_selenium = False
 else:
-    no_selenium = False
+    has_selenium = True
 
 from json.decoder import JSONDecodeError
 
@@ -49,7 +49,7 @@ class RciamHealthCheck:
         # configure the logger
         self.__logger = configure_logger(self.__args)
         # We do not need to create a web object if we are fetching the data from a url
-        if self.__args.inlocation is None or no_selenium:
+        if has_selenium == True and self.__args.inlocation is None:
             # configure the web driver
             self.__init_browser()
 
