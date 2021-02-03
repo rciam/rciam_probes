@@ -315,6 +315,7 @@ class RciamHealthCheck:
                 # msg_value = login_health_check_nagios_tmpl.substitute(defaults_login_health_check, time=login_finished)
                 code = NagiosStatusCode.OK.value
             else:
+                self.__logger.debug('Parse endpoint: ' + self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
                 raw_data = get_json(self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
                 # Check the timestamp
                 validate = timestamp_check(raw_data['date'])
