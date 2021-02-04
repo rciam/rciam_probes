@@ -426,6 +426,7 @@ def parse_arguments(args):
     parser.add_argument('--version', '-V', version='%(prog)s 1.2.6', action='version')
     return parser.parse_args(args)
 
+
 def firefox_profile(firefox_profile):
     """
     Apply firefox profile configuration
@@ -444,7 +445,8 @@ def firefox_profile(firefox_profile):
     firefox_profile.set_preference("browser.pocket.enabled", False)  # Duck pocket too!
     firefox_profile.set_preference("loop.enabled", False)
     firefox_profile.set_preference("browser.chrome.toolbar_style", 1)  # Text on Toolbar instead of icons
-    firefox_profile.set_preference("browser.display.show_image_placeholders", False)  # Don't show thumbnails on not loaded images.
+    firefox_profile.set_preference("browser.display.show_image_placeholders",
+                                   False)  # Don't show thumbnails on not loaded images.
     firefox_profile.set_preference("browser.display.use_document_colors", False)  # Don't show document colors.
     firefox_profile.set_preference("browser.display.use_document_fonts", 0)  # Don't load document fonts.
     firefox_profile.set_preference("browser.display.use_system_colors", True)  # Use system colors.
