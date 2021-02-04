@@ -333,25 +333,37 @@ class RciamHealthCheck:
             msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical(e)
+            self.__logger.critical('TimeoutException: ' + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         except ErrorInResponseException as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
             msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical(e)
+            self.__logger.critical('ErrorInResponseException: ' + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         except JSONDecodeError as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical("JSON decode error.JSON invalid format or not available.")
+            self.__logger.critical("JSON decode error.JSON invalid format or not available: " + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         except Exception as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical(e)
+            self.__logger.critical('Catch All Exception: ' + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         finally:
             if self.__browser is not None:
                 self.__browser.quit()

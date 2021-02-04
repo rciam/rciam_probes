@@ -9,6 +9,7 @@ import xmltodict
 import time as t
 import hashlib
 import json
+import datetime
 
 from shutil import chown
 from pathlib import Path
@@ -340,6 +341,17 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
         else:
             return value
 
+def take_snapshot(driver):
+    """
+    Get Browser/Driver snapsho
+    :param driver: geckodriver parameter
+    :type drriver: geckodriver object
+    """
+    
+    now = datetime.datetime.now()
+    filename = 'snapshot_' + now.strftime("%Y-%m-%d-%H:%M:%S")
+    fnamePath = Path.home().joinpath('html').joinpath('results').joinpath(filename)
+    driver.save_screenshot(fnamePath)
 
 def print_output(args, msg, logger=None):
     """
