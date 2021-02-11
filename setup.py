@@ -6,7 +6,7 @@ from codecs import open
 from os import path
 
 __name__ = 'rciam_probes'
-__version__ = '1.2.5'
+__version__ = '1.2.6'
 
 here = path.abspath(path.dirname(__file__))
 

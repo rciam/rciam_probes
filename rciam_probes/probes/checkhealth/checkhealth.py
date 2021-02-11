@@ -15,9 +15,9 @@ try:
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
     from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 except ImportError:
-    no_selenium = True
+    has_selenium = False
 else:
-    no_selenium = False
+    has_selenium = True
 
 from json.decoder import JSONDecodeError
 
@@ -49,7 +49,7 @@ class RciamHealthCheck:
         # configure the logger
         self.__logger = configure_logger(self.__args)
         # We do not need to create a web object if we are fetching the data from a url
-        if self.__args.inlocation is None or no_selenium:
+        if has_selenium == True and self.__args.inlocation is None:
             # configure the web driver
             self.__init_browser()
 
@@ -128,6 +128,7 @@ class RciamHealthCheck:
             self.__logger.debug(self.__browser.title)
             # urlencode idpentityid
             idp_entity_id_url_enc = quote(idp, safe='')
+            self.__logger.debug('Safe URL IdP entity ID: ' + idp_entity_id_url_enc)
             selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
             # Find the hyperlink
             self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
@@ -314,6 +315,7 @@ class RciamHealthCheck:
                 # msg_value = login_health_check_nagios_tmpl.substitute(defaults_login_health_check, time=login_finished)
                 code = NagiosStatusCode.OK.value
             else:
+                self.__logger.debug('Parse endpoint: ' + self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
                 raw_data = get_json(self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
                 # Check the timestamp
                 validate = timestamp_check(raw_data['date'])
@@ -326,28 +328,42 @@ class RciamHealthCheck:
                     msg_vtype = '-'
                     # Log print here
                     code = NagiosStatusCode.UNKNOWN.value
-        except TimeoutException:
+        except TimeoutException as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
             msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
-        except ErrorInResponseException:
+            self.__logger.critical('TimeoutException: ' + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
+        except ErrorInResponseException as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
             msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
+            self.__logger.critical('ErrorInResponseException: ' + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         except JSONDecodeError as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical("JSON decode error.JSON invalid format or not available.")
+            self.__logger.critical("JSON decode error.JSON invalid format or not available: " + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         except Exception as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical(e)
+            self.__logger.critical('Catch All Exception: ' + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
         finally:
             if self.__browser is not None:
                 self.__browser.quit()
@@ -407,8 +423,9 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.5', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.6', action='version')
     return parser.parse_args(args)
+
 
 def firefox_profile(firefox_profile):
     """
@@ -428,7 +445,8 @@ def firefox_profile(firefox_profile):
     firefox_profile.set_preference("browser.pocket.enabled", False)  # Duck pocket too!
     firefox_profile.set_preference("loop.enabled", False)
     firefox_profile.set_preference("browser.chrome.toolbar_style", 1)  # Text on Toolbar instead of icons
-    firefox_profile.set_preference("browser.display.show_image_placeholders", False)  # Don't show thumbnails on not loaded images.
+    firefox_profile.set_preference("browser.display.show_image_placeholders",
+                                   False)  # Don't show thumbnails on not loaded images.
     firefox_profile.set_preference("browser.display.use_document_colors", False)  # Don't show document colors.
     firefox_profile.set_preference("browser.display.use_document_fonts", 0)  # Don't load document fonts.
     firefox_profile.set_preference("browser.display.use_system_colors", True)  # Use system colors.

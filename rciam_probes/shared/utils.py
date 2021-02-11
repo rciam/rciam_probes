@@ -9,6 +9,7 @@ import xmltodict
 import time as t
 import hashlib
 import json
+import datetime
 
 from shutil import chown
 from pathlib import Path
@@ -84,6 +85,7 @@ def get_xml(url, timeout=5):
     requests.packages.urllib3.disable_warnings()
     response = requests.get(url, verify=False, timeout=timeout)
     return xmltodict.parse(response.text)
+
 
 def get_json(url, timeout=5):
     """
@@ -339,6 +341,19 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
             return tpl.login_health_check_nagios_tmpl.substitute(tpl.defaults_login_health_check, time=value, type=vtype)
         else:
             return value
+
+
+def take_snapshot(driver):
+    """
+    Get Browser/Driver snapsho
+    :param driver: geckodriver parameter
+    :type drriver: geckodriver object
+    """
+
+    now = datetime.datetime.now()
+    filename = 'snapshot_' + now.strftime("%Y-%m-%d-%H:%M:%S")
+    fnamePath = Path.home().joinpath('html').joinpath('results').joinpath(filename)
+    driver.save_screenshot(fnamePath)
 
 
 def print_output(args, msg, logger=None):
