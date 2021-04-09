@@ -350,7 +350,7 @@ def blk_validate_probe_data(raw_data_list):
         # todo: What should i choose between critical(2) and unknown(3)
 
         msg_value = raw_data['value'] if validate else "State " + NagiosStatusCode.UNKNOWN.name + "(Service became Stale)"
-        msg.append(str(msg_value))
+        msg.append(raw_data['idp'] + ": " + str(msg_value) + str(raw_data['vtype']))
         vtype.append(str(raw_data['vtype']))
 
     return code, msg, vtype
