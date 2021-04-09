@@ -322,7 +322,7 @@ class RciamHealthCheck:
 
                 code, msg_list, type_list = blk_validate_probe_data(raw_data_list)
                 msg_vtype = '-' if len(type_list) > 1 else type_list.pop()
-                msg_value = ','.join(msg_list) if len(msg_list) > 1 else float(msg_list.pop())
+                msg_value = ','.join(msg_list) if len(msg_list) > 1 else msg_list.pop()
         except TimeoutException as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
             msg_vtype = '-'
