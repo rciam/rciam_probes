@@ -315,19 +315,14 @@ class RciamHealthCheck:
                 # msg_value = login_health_check_nagios_tmpl.substitute(defaults_login_health_check, time=login_finished)
                 code = NagiosStatusCode.OK.value
             else:
-                self.__logger.debug('Parse endpoint: ' + self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
-                raw_data = get_json(self.__args.inlocation + "/" + construct_out_filename(self.__args, "json"))
-                # Check the timestamp
-                validate = timestamp_check(raw_data['date'])
-                if validate:
-                    msg_value = raw_data['value']
-                    msg_vtype = raw_data['vtype']
-                    code = raw_data['xcode']
-                else:
-                    msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Service became Stale)"
-                    msg_vtype = '-'
-                    # Log print here
-                    code = NagiosStatusCode.UNKNOWN.value
+                raw_data_list = []
+                for out_file in construct_out_filename(self.__args, "json"):
+                    self.__logger.debug('Parse endpoint: ' + self.__args.inlocation + "/" + out_file)
+                    raw_data_list.append( get_json(self.__args.inlocation + "/" + out_file))
+
+                code, msg_list, type_list = blk_validate_probe_data(raw_data_list)
+                msg_vtype = '-' if len(type_list) > 1 else type_list.pop()
+                msg_value = ','.join(msg_list) if len(msg_list) > 1 else msg_list.pop()
         except TimeoutException as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(Request Timed out)"
             msg_vtype = '-'

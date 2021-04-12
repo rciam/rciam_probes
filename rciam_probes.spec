@@ -140,6 +140,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Mon Apr 12 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.7
+- Support evaluation of multiple json entries
 * Tue Feb 2 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.6
 - Improve logging
 - Fix Selenium Import for consumer package

@@ -14,7 +14,7 @@ import datetime
 from shutil import chown
 from pathlib import Path
 from OpenSSL import crypto
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 from time import mktime, time, gmtime
 
 from rciam_probes.shared.enums import ParamDefaults, LoggingLevel, NagiosStatusCode
@@ -300,12 +300,60 @@ def construct_out_filename(args, file_extension):
     :param file_extension: the extension type of the file
     :type file_extension: string
 
-    :return: filename
-    :rtype string
+    :return: list of filenames
+    :rtype list
     """
-    filename2hash = args.sp + args.identity + args.hostname
-    filename_postfix = hashlib.md5(filename2hash.encode()).hexdigest()
-    return "out_" + str(filename_postfix) + "." + file_extension
+    idp_list = args.identity.split(',')
+    if isinstance(idp_list, list):
+        fname_out_list = []
+        for idp in idp_list:
+            filename2hash = args.sp + idp + args.hostname
+            filename_postfix = hashlib.md5(filename2hash.encode()).hexdigest()
+            out_filename_postfix = "out_" + str(filename_postfix) + "." + file_extension
+            fname_out_list.append(out_filename_postfix)
+        return fname_out_list
+    else:
+        filename2hash = args.sp + args.identity + args.hostname
+        filename_postfix = hashlib.md5(filename2hash.encode()).hexdigest()
+        return ["out_" + str(filename_postfix) + "." + file_extension]
+
+
+def blk_validate_probe_data(raw_data_list):
+    """
+    :param raw_data_list: List of probe data
+    :type raw_data_list: [string]
+
+    :return: code, NagiosStatusCode exit code
+    :rtype: NagiosStatusCode, int
+
+    :return: msg, List of messages
+    :rtype: [string]
+
+    :return: vtype, List of value types
+    :rtype: [string]
+    """
+
+    # Always start with a negative code
+    # Logic: If at least one successfull
+    code = -1
+    msg = []
+    vtype = []
+    for raw_data in raw_data_list:
+        validate = timestamp_check(raw_data['date'])
+        if not validate:
+            raw_data['xcode'] = NagiosStatusCode.UNKNOWN.value
+        # Initialize the exit code
+        code = raw_data['xcode'] if code < 0 else code
+        # If at least one succeeded or in warning state make it a warning
+        if code != 0 and raw_data['xcode'] <= 1:
+            code = 1
+        # todo: What should i choose between critical(2) and unknown(3)
+
+        msg_value = raw_data['value'] if validate else "State " + NagiosStatusCode.UNKNOWN.name + "(Service became Stale)"
+        msg.append(raw_data['idp'] + ": " + str(msg_value) + str(raw_data['vtype']))
+        vtype.append(str(raw_data['vtype']))
+
+    return code, msg, vtype
 
 
 def construct_probe_msg(args, value, vtype="s", xcode=0):
@@ -338,7 +386,8 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
         return json.dumps(data)
     else:
         if type(value) == int or type(value) == float:
-            return tpl.login_health_check_nagios_tmpl.substitute(tpl.defaults_login_health_check, time=value, type=vtype)
+            return tpl.login_health_check_nagios_tmpl.substitute(tpl.defaults_login_health_check, time=value,
+                                                                 type=vtype)
         else:
             return value
 
@@ -369,7 +418,7 @@ def print_output(args, msg, logger=None):
     :type object
     """
     if args.json_path:
-        filename = construct_out_filename(args, "json")
+        filenames = construct_out_filename(args, "json")
         fpath_array = args.json_path.split('/')
         fpath_array = list(filter(None, fpath_array))
         fpath = Path.home().joinpath(*fpath_array)
@@ -378,11 +427,12 @@ def print_output(args, msg, logger=None):
                 logger.debug(str(fpath) + " does not exist. Creating it.")
             fpath.mkdir(0o755, parents=True, exist_ok=True)
         logger.debug("Write data in path: " + str(fpath))
-        ofile = fpath.joinpath(filename)
-        ofile.touch(exist_ok=True)
-        ofile.write_text(msg)
+        for fn in filenames:
+            ofile = fpath.joinpath(fn)
+            ofile.touch(exist_ok=True)
+            ofile.write_text(msg)
     elif args.json:
-        filename = construct_out_filename(args, "json")
+        filenames = construct_out_filename(args, "json")
         fpath = Path('/').joinpath('var').joinpath('www').joinpath('html')
         if not fpath.is_dir():
             if logger is not None:
@@ -390,9 +440,10 @@ def print_output(args, msg, logger=None):
             print(msg)
             return
         logger.debug("Write data in path: " + str(fpath))
-        ofile = fpath.joinpath(filename)
-        ofile.touch(exist_ok=True)
-        ofile.write_text(msg)
+        for fn in filenames:
+            ofile = fpath.joinpath(fn)
+            ofile.touch(exist_ok=True)
+            ofile.write_text(msg)
     else:
         print(msg)
 
@@ -419,7 +470,7 @@ def timestamp_check(date, vld_time_window=30):
     # Handle date read from remote
     # It will produce two groups. The second one is the UTC offset, if present.
     dnow = datetime.now(timezone.utc).timestamp()
-    ddiff_min = (dnow - date)/60
+    ddiff_min = (dnow - date) / 60
     if ddiff_min > vld_time_window:
         return False
     else:
