@@ -65,10 +65,12 @@ class RciamMetadataCheck:
                                                                warning=self.__args.warning,
                                                                critical=self.__args.critical
                                                                )
-
+        except RuntimeError as e:
+            # Log Print here
+            self.__logger.critical("Runtime Exception: " + e)
+            exit(NagiosStatusCode.CRITICAL.value)
         except Exception as e:
             self.__logger.critical(e)
-            print("Unknown State")
             exit(NagiosStatusCode.UNKNOWN.value)
 
         # print to output

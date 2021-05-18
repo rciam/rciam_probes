@@ -16,6 +16,7 @@ from pathlib import Path
 from OpenSSL import crypto
 from datetime import datetime, timezone
 from time import mktime, time, gmtime
+from urllib3.exceptions import NewConnectionError
 
 from rciam_probes.shared.enums import ParamDefaults, LoggingLevel, NagiosStatusCode
 import rciam_probes.shared.templates as tpl
@@ -82,9 +83,15 @@ def get_xml(url, timeout=5):
 
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
-    requests.packages.urllib3.disable_warnings()
-    response = requests.get(url, verify=False, timeout=timeout)
-    return xmltodict.parse(response.text)
+    try:
+        requests.packages.urllib3.disable_warnings()
+        response = requests.get(url, verify=False, timeout=timeout)
+        parsed_response = xmltodict.parse(response.text)
+    except NewConnectionError as nce:
+        error_msg = "Http Connection failed({})" . format(nce.message)
+        raise RuntimeError(error_msg)
+
+    return parsed_response
 
 
 def get_json(url, timeout=5):
@@ -98,10 +105,15 @@ def get_json(url, timeout=5):
 
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
-    requests.packages.urllib3.disable_warnings()
-    response = requests.get(url, verify=False, timeout=timeout)
-    return json.loads(response.text)
+    try:
+        requests.packages.urllib3.disable_warnings()
+        response = requests.get(url, verify=False, timeout=timeout)
+        parsed_response = json.loads(response.text)
+    except NewConnectionError as nce:
+        error_msg = "Http Connection failed({})" . format(nce.message)
+        raise RuntimeError(error_msg)
 
+    return parsed_response
 
 def gen_dict_extract(var, key):
     """

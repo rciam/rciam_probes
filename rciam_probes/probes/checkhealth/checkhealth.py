@@ -333,10 +333,10 @@ class RciamHealthCheck:
                 take_snapshot(self.__browser)
                 self.__logger.debug('Snapshot taken')
         except ErrorInResponseException as e:
-            msg_value = "State " + NagiosStatusCode.UNKNOWN.name + "(HTTP status code:)"
+            msg_value = "State " + NagiosStatusCode.CRITICAL.name + "(HTTP status code:)"
             msg_vtype = '-'
             # Log print here
-            code = NagiosStatusCode.UNKNOWN.value
+            code = NagiosStatusCode.CRITICAL.value
             self.__logger.critical('ErrorInResponseException: ' + e)
             if self.__browser is not None:
                 take_snapshot(self.__browser)
@@ -350,11 +350,20 @@ class RciamHealthCheck:
             if self.__browser is not None:
                 take_snapshot(self.__browser)
                 self.__logger.debug('Snapshot taken')
-        except Exception as e:
-            msg_value = "State " + NagiosStatusCode.UNKNOWN.name
+        except RuntimeError as e:
+            msg_value = "State " + NagiosStatusCode.CRITICAL.name
             msg_vtype = '-'
             # Log Print here
-            code = NagiosStatusCode.UNKNOWN.value
+            code = NagiosStatusCode.CRITICAL.value
+            self.__logger.critical("Runtime Exception: " + e)
+            if self.__browser is not None:
+                take_snapshot(self.__browser)
+                self.__logger.debug('Snapshot taken')
+        except Exception as e:
+            msg_value = "State " + NagiosStatusCode.CRITICAL.name
+            msg_vtype = '-'
+            # Log Print here
+            code = NagiosStatusCode.CRITICAL.value
             self.__logger.critical('Catch All Exception: ' + e)
             if self.__browser is not None:
                 take_snapshot(self.__browser)
@@ -418,7 +427,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.6', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.8', action='version')
     return parser.parse_args(args)
 
 
