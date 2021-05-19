@@ -72,7 +72,7 @@ def configure_logger(args):
     return logger
 
 
-def get_xml(url, timeout=5):
+def get_xml(url, timeout=5, logger=None):
     """
     Get and parse an xml available through a url
     :param url: URL
@@ -81,6 +81,9 @@ def get_xml(url, timeout=5):
     :return: Data parsed from the xml
     :rtype: dict
 
+    :param value: logger object
+    :type object
+
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
     try:
@@ -88,13 +91,15 @@ def get_xml(url, timeout=5):
         response = requests.get(url, verify=False, timeout=timeout)
         parsed_response = xmltodict.parse(response.text)
     except NewConnectionError as nce:
-        error_msg = "Http Connection failed({})" . format(nce.message)
+        if logger is not None:
+            logger.critical(nce.message)
+        error_msg = "Http Connection failed."
         raise RuntimeError(error_msg)
 
     return parsed_response
 
 
-def get_json(url, timeout=5):
+def get_json(url, timeout=5, logger=None):
     """
     Get and parse a json file available through a url
     :param url: URL
@@ -103,6 +108,9 @@ def get_json(url, timeout=5):
     :return: Data parsed from json
     :rtype: dict
 
+    :param value: logger object
+    :type object
+
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
     try:
@@ -110,7 +118,9 @@ def get_json(url, timeout=5):
         response = requests.get(url, verify=False, timeout=timeout)
         parsed_response = json.loads(response.text)
     except NewConnectionError as nce:
-        error_msg = "Http Connection failed({})" . format(nce.message)
+        if logger is not None:
+            logger.critical(nce.message)
+        error_msg = "Http Connection failed."
         raise RuntimeError(error_msg)
 
     return parsed_response

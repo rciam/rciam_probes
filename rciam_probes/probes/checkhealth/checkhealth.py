@@ -318,7 +318,7 @@ class RciamHealthCheck:
                 raw_data_list = []
                 for out_file in construct_out_filename(self.__args, "json"):
                     self.__logger.debug('Parse endpoint: ' + self.__args.inlocation + "/" + out_file)
-                    raw_data_list.append( get_json(self.__args.inlocation + "/" + out_file))
+                    raw_data_list.append( get_json(self.__args.inlocation + "/" + out_file, self.__args.timeout, self.__logger))
 
                 code, msg_list, type_list = blk_validate_probe_data(raw_data_list)
                 msg_vtype = '-' if len(type_list) > 1 else type_list.pop()
