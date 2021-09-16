@@ -35,7 +35,7 @@ class RciamMetadataCheck:
         self.__logger.info(' '.join([(repr(arg) if ' ' in arg else arg) for arg in sys.argv]))
 
         try:
-            metadata_dict = get_xml(self.__url, self.__timeout)
+            metadata_dict = get_xml(self.__url, self.__timeout, self.__logger)
             # Find the certificate by type
             x509_dict = fetch_cert_from_type(metadata_dict, self.__args.certuse)
             if len(x509_dict) > 1:
@@ -65,10 +65,12 @@ class RciamMetadataCheck:
                                                                warning=self.__args.warning,
                                                                critical=self.__args.critical
                                                                )
-
+        except RuntimeError as e:
+            # Log Print here
+            self.__logger.critical("Runtime Exception: " + e)
+            exit(NagiosStatusCode.CRITICAL.value)
         except Exception as e:
             self.__logger.critical(e)
-            print("Unknown State")
             exit(NagiosStatusCode.UNKNOWN.value)
 
         # print to output

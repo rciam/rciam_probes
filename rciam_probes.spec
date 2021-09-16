@@ -14,7 +14,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 1.2.6
+Version: 1.2.9
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -140,6 +140,10 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Thu Sep 16 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.9
+- Add support for OIDC server consent page
+* Wed May 19 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.8
+- Improve Exception handling
 * Mon Apr 12 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.7
 - Support evaluation of multiple json entries
 * Tue Feb 2 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.6

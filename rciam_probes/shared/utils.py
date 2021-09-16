@@ -16,6 +16,7 @@ from pathlib import Path
 from OpenSSL import crypto
 from datetime import datetime, timezone
 from time import mktime, time, gmtime
+from urllib3.exceptions import NewConnectionError
 
 from rciam_probes.shared.enums import ParamDefaults, LoggingLevel, NagiosStatusCode
 import rciam_probes.shared.templates as tpl
@@ -71,7 +72,7 @@ def configure_logger(args):
     return logger
 
 
-def get_xml(url, timeout=5):
+def get_xml(url, timeout=5, logger=None):
     """
     Get and parse an xml available through a url
     :param url: URL
@@ -80,14 +81,25 @@ def get_xml(url, timeout=5):
     :return: Data parsed from the xml
     :rtype: dict
 
+    :param value: logger object
+    :type object
+
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
-    requests.packages.urllib3.disable_warnings()
-    response = requests.get(url, verify=False, timeout=timeout)
-    return xmltodict.parse(response.text)
+    try:
+        requests.packages.urllib3.disable_warnings()
+        response = requests.get(url, verify=False, timeout=timeout)
+        parsed_response = xmltodict.parse(response.text)
+    except NewConnectionError as nce:
+        if logger is not None:
+            logger.critical(nce.message)
+        error_msg = "Http Connection failed."
+        raise RuntimeError(error_msg)
+
+    return parsed_response
 
 
-def get_json(url, timeout=5):
+def get_json(url, timeout=5, logger=None):
     """
     Get and parse a json file available through a url
     :param url: URL
@@ -96,12 +108,22 @@ def get_json(url, timeout=5):
     :return: Data parsed from json
     :rtype: dict
 
+    :param value: logger object
+    :type object
+
     :raises Exception: Exceptions might occurs from the URL format and get request. Or from xml parsing
     """
-    requests.packages.urllib3.disable_warnings()
-    response = requests.get(url, verify=False, timeout=timeout)
-    return json.loads(response.text)
+    try:
+        requests.packages.urllib3.disable_warnings()
+        response = requests.get(url, verify=False, timeout=timeout)
+        parsed_response = json.loads(response.text)
+    except NewConnectionError as nce:
+        if logger is not None:
+            logger.critical(nce.message)
+        error_msg = "Http Connection failed."
+        raise RuntimeError(error_msg)
 
+    return parsed_response
 
 def gen_dict_extract(var, key):
     """
