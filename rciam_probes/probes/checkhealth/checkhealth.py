@@ -150,6 +150,7 @@ class RciamHealthCheck:
         while ssp_modules:
             try:
                 self.__wait.until(EC.presence_of_element_located((By.XPATH, "//form[1]")))
+                # A cookie element is not available
                 self.__wait.until(EC.presence_of_element_located((By.ID, "cookies")))
                 self.__wait.until(EC.element_to_be_clickable((By.ID, "yesbutton")))
                 # Log the title of the view
@@ -232,6 +233,31 @@ class RciamHealthCheck:
             # Accept the form
             self.__browser.find_element_by_css_selector("form button[type='submit']").click()
 
+    def __oidc_server_consent_page(self):
+        """
+        If the OIDC server prompts for explicit consent in order to release the attributes
+        This page is a MitreId consent page
+        Info:
+        - OIDC MitreId consent pages have element: input[type='submit'][value='Authorise']
+        """
+        try:
+            regex_domain = r"^https?:[\/]{2}(.*?)[\/]{1}.*$"
+            domain = re.search(regex_domain, self.__args.identity).group(1)
+            # Only wait at most 5 seconds.
+            WebDriverWait(self.__browser, 5).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
+            WebDriverWait(self.__browser, 5).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Authorise']")))
+            # Log the title of the view
+            self.__logger.debug(self.__browser.title)
+            # Cache cookies
+            self.__cached_cookies = self.__browser.get_cookies()
+            self.__last_url = self.__browser.current_url
+            # Accept the form
+            self.__browser.find_element_by_css_selector("form [type='submit'][value='Authorise']").click()
+            # Get the source code from the page and check if authentication failed
+        except TimeoutException:
+            self.__logger.warning('OIDC Server has no consent page. Continue...')
+
     def __idp_shib_consent_page(self):
         """
         If the IdP prompts for explicit consent in order to release the attributes
@@ -308,6 +334,8 @@ class RciamHealthCheck:
                 self.__idp_shib_consent_page()
                 # You came back from the Idp. Iterate over all SSP modules and press continue
                 self.__accept_all_ssp_modules()
+                # Accept OIDC consent page if present
+                self.__oidc_server_consent_page()
                 # Verify that the SPs home page loaded
                 self.__verify_sp_home_page_loaded()
                 msg_value = round(stop_ticking(self.__start_time), 2)
@@ -411,7 +439,7 @@ def parse_arguments(args):
     parser.add_argument('--json', dest="json_path",
                         help='Provide the output directory for the xxx.json file. The flag is mutually exclusive with -J.')
     parser.add_argument('--timeout', '-t', dest="timeout", help='Timeout after x amount of seconds. Defaults to 5s.',
-                        type=int, default=5)
+                        type=int, default=7)
     parser.add_argument('--inlocation', '-e', dest="inlocation", help='URL location to get raw monitoring data from.',
                         type=str, required=False)
     parser.add_argument('--sp', '-s', dest="sp",
@@ -427,7 +455,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.8', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.9', action='version')
     return parser.parse_args(args)
 
 
