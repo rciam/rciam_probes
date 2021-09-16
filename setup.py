@@ -6,7 +6,7 @@ from codecs import open
 from os import path
 
 __name__ = 'rciam_probes'
-__version__ = '1.2.8'
+__version__ = '1.2.9'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -29,7 +29,6 @@ setup(name=__name__,
       description='Package includes probes for RCIAM',
       classifiers=[
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
           "License :: OSI Approved :: Apache Software License",
           "Operating System :: OS Independent",
@@ -41,6 +40,6 @@ setup(name=__name__,
       packages=find_packages(exclude=['tests', 'docs']),
       include_package_data=True,
       scripts=["bin/checkcert", "bin/checklogin"],
-      python_requires='~=3.5',
+      python_requires='~=3.6',
       install_requires=install_requires,
       )
