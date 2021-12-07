@@ -497,3 +497,24 @@ def timestamp_check(date, vld_time_window=30):
         return False
     else:
         return True
+
+def evaluate_response_status(browser, args, logger=None):
+    """
+
+    :param browser: Webdriver object of Firefox agent
+    :type webdriver object
+
+    :param args: arguments retrieved from command line
+    :type args: dict
+
+    :param logger: Logger object. Pass if you want to log
+    :type Logger: Logger Object
+
+    :raise RuntimeError
+    """
+    for request in browser.requests:
+        if request.response and request.host == args.hostname:
+            if request.response.status_code >= 500:
+                # Log the host, status, request
+                logger.error("Service is down: " + request.response.status_code)
+                raise RuntimeError('Service unavailable[' + request.response.status_code + ']')

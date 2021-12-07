@@ -9,7 +9,7 @@ from urllib.parse import *
 
 # Slim version comes with no Selenium and no firefox
 try:
-    from selenium import webdriver
+    from seleniumwire import webdriver
     from selenium.common.exceptions import *
     from selenium.webdriver.common.keys import Keys
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
@@ -121,6 +121,8 @@ class RciamHealthCheck:
     def __sp_redirect_disco_n_click(self):
         """Discovery Service View"""
         self.__browser.get(self.__args.sp)
+        evaluate_response_status(self.__browser, self.__args, self.__logger)
+
         # In case i have a list of hops
         idp_list = self.__args.identity.split(',')
         for idp in idp_list:
@@ -168,6 +170,8 @@ class RciamHealthCheck:
                     continue_btn.click()
                     self.__cached_cookies = self.__browser.get_cookies()
             except TimeoutException:
+                evaluate_response_status(self.__browser, self.__args, self.__logger)
+
                 self.__logger.warning('No simplesamlPHP modules found. Continue...')
                 ssp_modules = False
 
@@ -256,6 +260,8 @@ class RciamHealthCheck:
             self.__browser.find_element_by_css_selector("form [type='submit'][value='Authorise']").click()
             # Get the source code from the page and check if authentication failed
         except TimeoutException:
+            evaluate_response_status(self.__browser, self.__args, self.__logger)
+
             self.__logger.warning('OIDC Server has no consent page. Continue...')
 
     def __idp_shib_consent_page(self):
@@ -455,7 +461,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.9', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.11', action='version')
     return parser.parse_args(args)
 
 
