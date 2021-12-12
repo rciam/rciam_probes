@@ -248,8 +248,8 @@ class RciamHealthCheck:
             regex_domain = r"^https?:[\/]{2}(.*?)[\/]{1}.*$"
             domain = re.search(regex_domain, self.__args.identity).group(1)
             # Only wait at most 5 seconds.
-            WebDriverWait(self.__browser, 5).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
-            WebDriverWait(self.__browser, 5).until(
+            WebDriverWait(self.__browser, self.__args.timeout).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
+            WebDriverWait(self.__browser, self.__args.timeout).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Authorise']")))
             # Log the title of the view
             self.__logger.debug(self.__browser.title)
@@ -261,7 +261,6 @@ class RciamHealthCheck:
             # Get the source code from the page and check if authentication failed
         except TimeoutException:
             evaluate_response_status(self.__browser, self.__args, self.__logger)
-
             self.__logger.warning('OIDC Server has no consent page. Continue...')
 
     def __idp_shib_consent_page(self):
@@ -276,8 +275,8 @@ class RciamHealthCheck:
             regex_domain = r"^https?:[\/]{2}(.*?)[\/]{1}.*$"
             domain = re.search(regex_domain, self.__args.identity).group(1)
             # Only wait at most 5 seconds.
-            WebDriverWait(self.__browser, 5).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
-            WebDriverWait(self.__browser, 5).until(
+            WebDriverWait(self.__browser, self.__args.timeout).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
+            WebDriverWait(self.__browser, self.__args.timeout).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Accept']")))
             # Log the title of the view
             self.__logger.debug(self.__browser.title)
@@ -288,6 +287,9 @@ class RciamHealthCheck:
             self.__browser.find_element_by_css_selector("form [type='submit'][value='Accept']").click()
             # Get the source code from the page and check if authentication failed
         except TimeoutException:
+            # I will try to catch the error here because not every IdP has a consent page.
+            # This should not trigger false results since we filter responses by domain/host name.
+            evaluate_response_status(self.__browser, self.__args, self.__logger)
             self.__logger.warning('Idp has no consent page. Continue...')
 
     def __get_attrs_checking_dummy_sps(self):
@@ -362,45 +364,45 @@ class RciamHealthCheck:
             msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical('TimeoutException: ' + e)
+            self.__logger.critical('TimeoutException: ' + str(e))
             if self.__browser is not None:
-                take_snapshot(self.__browser)
+                take_snapshot(self.__browser, self.__logger)
                 self.__logger.debug('Snapshot taken')
         except ErrorInResponseException as e:
             msg_value = "State " + NagiosStatusCode.CRITICAL.name + "(HTTP status code:)"
             msg_vtype = '-'
             # Log print here
             code = NagiosStatusCode.CRITICAL.value
-            self.__logger.critical('ErrorInResponseException: ' + e)
+            self.__logger.critical('ErrorInResponseException: ' + str(e))
             if self.__browser is not None:
-                take_snapshot(self.__browser)
+                take_snapshot(self.__browser, self.__logger)
                 self.__logger.debug('Snapshot taken')
         except JSONDecodeError as e:
             msg_value = "State " + NagiosStatusCode.UNKNOWN.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.UNKNOWN.value
-            self.__logger.critical("JSON decode error.JSON invalid format or not available: " + e)
+            self.__logger.critical("JSON decode error.JSON invalid format or not available: " + str(e))
             if self.__browser is not None:
-                take_snapshot(self.__browser)
+                take_snapshot(self.__browser, self.__logger)
                 self.__logger.debug('Snapshot taken')
         except RuntimeError as e:
             msg_value = "State " + NagiosStatusCode.CRITICAL.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.CRITICAL.value
-            self.__logger.critical("Runtime Exception: " + e)
+            self.__logger.critical("Runtime Exception: " + str(e))
             if self.__browser is not None:
-                take_snapshot(self.__browser)
+                take_snapshot(self.__browser, self.__logger)
                 self.__logger.debug('Snapshot taken')
         except Exception as e:
             msg_value = "State " + NagiosStatusCode.CRITICAL.name
             msg_vtype = '-'
             # Log Print here
             code = NagiosStatusCode.CRITICAL.value
-            self.__logger.critical('Catch All Exception: ' + e)
+            self.__logger.critical('Catch All Exception: ' + str(e))
             if self.__browser is not None:
-                take_snapshot(self.__browser)
+                take_snapshot(self.__browser, self.__logger)
                 self.__logger.debug('Snapshot taken')
         finally:
             if self.__browser is not None:
@@ -461,7 +463,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.11', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.12', action='version')
     return parser.parse_args(args)
 
 
