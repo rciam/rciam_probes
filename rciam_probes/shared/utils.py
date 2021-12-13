@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+from json import JSONDecodeError
 
 import pkg_resources
 import requests
@@ -121,6 +122,11 @@ def get_json(url, timeout=5, logger=None):
         if logger is not None:
             logger.critical(nce.message)
         error_msg = "Http Connection failed."
+        raise RuntimeError(error_msg)
+    except JSONDecodeError as jerr:
+        if logger is not None:
+            logger.critical(jerr.message)
+        error_msg = f"JSON Decode of {url} failed."
         raise RuntimeError(error_msg)
 
     return parsed_response
