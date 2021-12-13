@@ -125,23 +125,27 @@ class RciamHealthCheck:
 
         # In case i have a list of hops
         idp_list = self.__args.identity.split(',')
-        for idp in idp_list:
-            # Log the title of the view
-            self.__logger.debug(self.__browser.title)
-            # urlencode idpentityid
-            idp_entity_id_url_enc = quote(idp, safe='')
-            self.__logger.debug('Safe URL IdP entity ID: ' + idp_entity_id_url_enc)
-            selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
-            # Find the hyperlink
-            self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
-            # Wait until it is clickable
-            self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
-            self.__wait_for_spinner()
-            self.__hide_cookie_policy()
-            # Cache cookies
-            self.__cached_cookies = self.__browser.get_cookies()
-            # Select IdP defined in the params
-            self.__browser.find_element_by_css_selector(selector_callable).click()
+        try:
+            for idp in idp_list:
+                # Log the title of the view
+                self.__logger.debug(self.__browser.title)
+                # urlencode idpentityid
+                idp_entity_id_url_enc = quote(idp, safe='')
+                self.__logger.debug('Safe URL IdP entity ID: ' + idp_entity_id_url_enc)
+                selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
+                # Find the hyperlink
+                self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
+                # Wait until it is clickable
+                self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
+                self.__wait_for_spinner()
+                self.__hide_cookie_policy()
+                # Cache cookies
+                self.__cached_cookies = self.__browser.get_cookies()
+                # Select IdP defined in the params
+                self.__browser.find_element_by_css_selector(selector_callable).click()
+        except TimeoutException:
+            raise RuntimeError('Discovery Service timeout')
+
 
     def __accept_all_ssp_modules(self):
         """
@@ -463,7 +467,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.12', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.13', action='version')
     return parser.parse_args(args)
 
 
