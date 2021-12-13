@@ -125,7 +125,7 @@ def get_json(url, timeout=5, logger=None):
         raise RuntimeError(error_msg)
     except JSONDecodeError as jerr:
         if logger is not None:
-            logger.critical(jerr.message)
+            logger.critical(f"JSON Decode of {url} failed.")
         error_msg = f"JSON Decode of {url} failed."
         raise RuntimeError(error_msg)
 
