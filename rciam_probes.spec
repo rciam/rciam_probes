@@ -14,7 +14,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 1.2.9
+Version: 1.2.12
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -140,6 +140,14 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Thu Dec 12 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.12
+- Convert posixpath object to string when logging
+- Convert Errors to string when logging
+- Make timeout for IdP and OIDC consent views configurable
+* Thu Dec 07 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.11
+- Evaluate HTTP status code when calculating nagios status
+* Thu Sep 22 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.10
+- Do not timeout if cookie banner is not available
 * Thu Sep 16 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.9
 - Add support for OIDC server consent page
 * Wed May 19 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.8

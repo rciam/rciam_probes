@@ -414,17 +414,24 @@ def construct_probe_msg(args, value, vtype="s", xcode=0):
             return value
 
 
-def take_snapshot(driver):
+def take_snapshot(driver, logger=None):
     """
     Get Browser/Driver snapsho
     :param driver: geckodriver parameter
     :type drriver: geckodriver object
+
+    :param value: logger object
+    :type object
     """
 
-    now = datetime.datetime.now()
-    filename = 'snapshot_' + now.strftime("%Y-%m-%d-%H:%M:%S")
+    now = datetime.now()
+    # The filename has to end with .png file extension
+    filename = 'snapshot_' + now.strftime("%Y-%m-%d-%H:%M:%S") + '.png'
     fnamePath = Path.home().joinpath('html').joinpath('results').joinpath(filename)
-    driver.save_screenshot(fnamePath)
+    # Convert to string and use
+    driver.save_screenshot(str(fnamePath))
+    if logger is not None:
+        logger.debug("Snapshot saved in path: " + str(fnamePath))
 
 
 def print_output(args, msg, logger=None):
@@ -497,3 +504,24 @@ def timestamp_check(date, vld_time_window=30):
         return False
     else:
         return True
+
+def evaluate_response_status(browser, args, logger=None):
+    """
+
+    :param browser: Webdriver object of Firefox agent
+    :type webdriver object
+
+    :param args: arguments retrieved from command line
+    :type args: dict
+
+    :param logger: Logger object. Pass if you want to log
+    :type Logger: Logger Object
+
+    :raise RuntimeError
+    """
+    for request in browser.requests:
+        if request.response and request.host == args.hostname:
+            if request.response.status_code >= 500:
+                # Log the host, status, request
+                logger.error("Service is down: " + str(request.response.status_code))
+                raise RuntimeError('Service unavailable[' + str(request.response.status_code) + ']')
