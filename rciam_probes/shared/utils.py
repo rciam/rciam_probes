@@ -469,10 +469,14 @@ def print_output(args, msg, logger=None):
             print(msg)
             return
         logger.debug("Write data in path: " + str(fpath))
-        for fn in filenames:
-            ofile = fpath.joinpath(fn)
-            ofile.touch(exist_ok=True)
-            ofile.write_text(msg)
+        try:
+            for fn in filenames:
+                ofile = fpath.joinpath(fn)
+                ofile.touch(exist_ok=True)
+                ofile.write_text(msg)
+        except PermissionError:
+            logger.warning("Insufficient permissions to create " + str(fn))
+
     else:
         print(msg)
 
