@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+from json import JSONDecodeError
 
 import pkg_resources
 import requests
@@ -121,6 +122,11 @@ def get_json(url, timeout=5, logger=None):
         if logger is not None:
             logger.critical(nce.message)
         error_msg = "Http Connection failed."
+        raise RuntimeError(error_msg)
+    except JSONDecodeError as jerr:
+        if logger is not None:
+            logger.critical(f"JSON Decode of {url} failed.")
+        error_msg = f"JSON Decode of {url} failed."
         raise RuntimeError(error_msg)
 
     return parsed_response
@@ -469,10 +475,14 @@ def print_output(args, msg, logger=None):
             print(msg)
             return
         logger.debug("Write data in path: " + str(fpath))
-        for fn in filenames:
-            ofile = fpath.joinpath(fn)
-            ofile.touch(exist_ok=True)
-            ofile.write_text(msg)
+        try:
+            for fn in filenames:
+                ofile = fpath.joinpath(fn)
+                ofile.touch(exist_ok=True)
+                ofile.write_text(msg)
+        except PermissionError:
+            logger.warning("Insufficient permissions to create " + str(fn))
+
     else:
         print(msg)
 
