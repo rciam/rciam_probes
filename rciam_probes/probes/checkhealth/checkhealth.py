@@ -281,14 +281,16 @@ class RciamHealthCheck:
             # Only wait at most 5 seconds.
             WebDriverWait(self.__browser, self.__args.timeout).until(lambda driver: self.__browser.current_url.strip('/').find(domain))
             WebDriverWait(self.__browser, self.__args.timeout).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Accept']")))
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][name*='proceed']")))
+                # EC.element_to_be_clickable((By.CSS_SELECTOR, "form [type='submit'][value='Accept']")))
             # Log the title of the view
             self.__logger.debug(self.__browser.title)
             # Cache cookies
             self.__cached_cookies = self.__browser.get_cookies()
             self.__last_url = self.__browser.current_url
             # Accept the form
-            self.__browser.find_element_by_css_selector("form [type='submit'][value='Accept']").click()
+            self.__browser.find_element_by_css_selector("form [type='submit'][name*='proceed']").click()
+            # self.__browser.find_element_by_css_selector("form [type='submit'][value='Accept']").click()
             # Get the source code from the page and check if authentication failed
         except TimeoutException:
             # I will try to catch the error here because not every IdP has a consent page.
