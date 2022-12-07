@@ -140,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
-* Mon Dec 12 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.14
+* Wed Dec 7 2022 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.14
 - Add support for Shibboleth IdP v4 consent page
 * Mon Dec 13 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.13
 - Discovery service timeout needs to be treated as critical
