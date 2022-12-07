@@ -469,7 +469,7 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
-    parser.add_argument('--version', '-V', version='%(prog)s 1.2.13', action='version')
+    parser.add_argument('--version', '-V', version='%(prog)s 1.2.14', action='version')
     return parser.parse_args(args)
 
 
