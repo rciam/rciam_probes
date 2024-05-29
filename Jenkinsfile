@@ -10,10 +10,10 @@ pipeline {
         GIT_COMMIT_DATE=sh(script: "date -d \"\$(cd ${WORKSPACE}/$PROJECT_DIR && git show -s --format=%ci ${GIT_COMMIT_HASH})\" \"+%Y%m%d%H%M%S\"",returnStdout: true).trim()
     }
     stages {
-        stage ('Build Centos 7') {
+        stage ('Build Rocky 9') {
             agent {
                 docker {
-                    image 'argo.registry:5000/epel-7-rciam'
+                    image 'argo.registry:5000/epel-9-rciam'
                     args '-u jenkins:jenkins'
                 }
             }
@@ -21,7 +21,7 @@ pipeline {
                 echo 'Building Rpm...'
                 withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-rpm-repo', usernameVariable: 'REPOUSER', \
                                                             keyFileVariable: 'REPOKEY')]) {
-                    sh "/home/jenkins/build-rpm.sh -w ${WORKSPACE} -b ${BRANCH_NAME} -d centos7 -p ${PROJECT_DIR} -s ${REPOKEY}"
+                    sh "/home/jenkins/build-rpm.sh -w ${WORKSPACE} -b ${BRANCH_NAME} -d rocky9 -p ${PROJECT_DIR} -s ${REPOKEY}"
                 }
                 archiveArtifacts artifacts: '**/*.rpm', fingerprint: true
             }

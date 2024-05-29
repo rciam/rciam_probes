@@ -6,7 +6,7 @@ from codecs import open
 from os import path
 
 __name__ = 'rciam_probes'
-__version__ = '1.2.14'
+__version__ = '2.0.0'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -24,12 +24,12 @@ dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startsw
 setup(name=__name__,
       version=__version__,
       license='Apache-2.0',
-      author='ioigoume@admin.grnet.gr',
-      author_email='ioigoume@admin.grnet.gr',
+      author='RCIAM - Identity Access Management for Research Communities',
+      author_email='faai@grnet.gr',
       description='Package includes probes for RCIAM',
       classifiers=[
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.9",
           "License :: OSI Approved :: Apache Software License",
           "Operating System :: OS Independent",
       ],
@@ -40,6 +40,6 @@ setup(name=__name__,
       packages=find_packages(exclude=['tests', 'docs']),
       include_package_data=True,
       scripts=["bin/checkcert", "bin/checklogin"],
-      python_requires='~=3.6',
+      python_requires='~=3.9',
       install_requires=install_requires,
       )
