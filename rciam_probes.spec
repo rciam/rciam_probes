@@ -5,12 +5,6 @@
 %define argo_path argo-monitoring/probes
 %define logrotate_dir logrotate.d
 
-#export PROJECT_DIR=/path/to/rciam_probes
-#export GIT_COMMIT=`cd $PROJECT_DIR && git log -1 --format="%H"`
-#export GIT_COMMIT_HASH=`cd $PROJECT_DIR && git log -1 --format="%H" | cut -c1-7`
-#DATE=`cd $PROJECT_DIR && git show -s --format=%ci ${GIT_COMMIT_HASH}`
-#export GIT_COMMIT_DATE=`date -d "$DATE" +'%Y%m%d%H%M%S'`
-
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
