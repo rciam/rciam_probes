@@ -135,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
-* Wed July 3 2024 Nicolas Liampotis <nliam@grnet.gr> 2.1.0
+* Wed Jul 3 2024 Nicolas Liampotis <nliam@grnet.gr> 2.1.0
 - Added Python requirements
 * Wed May 29 2024 Nicolas Liampotis <nliam@grnet.gr> 2.0.0
 - Changed Python requirements from python36-* to python3-*
