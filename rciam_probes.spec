@@ -27,6 +27,7 @@ Requires: python3-urllib3
 Requires: python3-xmltodict
 Requires: python3-beautifulsoup4
 Requires: python3-requests
+Requires: python3-setuptools
 Requires: logrotate
 Requires: firefox
 Requires: python3-selenium
@@ -50,6 +51,7 @@ Requires: python3-urllib3
 Requires: python3-xmltodict
 Requires: python3-beautifulsoup4
 Requires: python3-requests
+Requires: python3-setuptools
 Requires: logrotate
 
 %description consumer
