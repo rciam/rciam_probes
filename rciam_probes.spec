@@ -5,16 +5,10 @@
 %define argo_path argo-monitoring/probes
 %define logrotate_dir logrotate.d
 
-#export PROJECT_DIR=/path/to/rciam_probes
-#export GIT_COMMIT=`cd $PROJECT_DIR && git log -1 --format="%H"`
-#export GIT_COMMIT_HASH=`cd $PROJECT_DIR && git log -1 --format="%H" | cut -c1-7`
-#DATE=`cd $PROJECT_DIR && git show -s --format=%ci ${GIT_COMMIT_HASH}`
-#export GIT_COMMIT_DATE=`date -d "$DATE" +'%Y%m%d%H%M%S'`
-
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 1.2.14
+Version: 2.1.0
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -23,19 +17,20 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Group: Network/Monitoring
 BuildArch: noarch
-Requires: python36-cffi
-Requires: python36-cryptography
-Requires: python36-lxml
-Requires: python36-pycparser
-Requires: python36-pyOpenSSL
-Requires: python36-six
-Requires: python36-urllib3
-Requires: python36-xmltodict
-Requires: python36-beautifulsoup4
-Requires: python36-requests
+Requires: python3-cffi
+Requires: python3-cryptography
+Requires: python3-lxml
+Requires: python3-pycparser
+Requires: python3-pyOpenSSL
+Requires: python3-six
+Requires: python3-urllib3
+Requires: python3-xmltodict
+Requires: python3-beautifulsoup4
+Requires: python3-requests
+Requires: python3-setuptools
 Requires: logrotate
 Requires: firefox
-Requires: python36-selenium
+Requires: python3-selenium
 
 %description
 This package includes probes for RCIAM.
@@ -46,16 +41,17 @@ Currently it supports the following components:
 %package consumer
 Summary: RCIAM probes - Checkmetadata, Checklogin Consumer
 Group: grnet/rciam
-Requires: python36-cffi
-Requires: python36-cryptography
-Requires: python36-lxml
-Requires: python36-pycparser
-Requires: python36-pyOpenSSL
-Requires: python36-six
-Requires: python36-urllib3
-Requires: python36-xmltodict
-Requires: python36-beautifulsoup4
-Requires: python36-requests
+Requires: python3-cffi
+Requires: python3-cryptography
+Requires: python3-lxml
+Requires: python3-pycparser
+Requires: python3-pyOpenSSL
+Requires: python3-six
+Requires: python3-urllib3
+Requires: python3-xmltodict
+Requires: python3-beautifulsoup4
+Requires: python3-requests
+Requires: python3-setuptools
 Requires: logrotate
 
 %description consumer
@@ -83,7 +79,6 @@ install --directory -m 755 %{buildroot}%{_localstatedir}/log/%{name}
 # Copy the log rotate configuration
 install --directory -m 755 %{buildroot}%{_sysconfdir}/%{logrotate_dir}/
 cp -r extras/%{logrotate_dir}/ %{buildroot}%{_sysconfdir}
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -140,6 +135,11 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Wed July 3 2024 Nicolas Liampotis <nliam@grnet.gr> 2.1.0
+- Added Python requirements
+* Wed May 29 2024 Nicolas Liampotis <nliam@grnet.gr> 2.0.0
+- Changed Python requirements from python36-* to python3-*
+- Updated spec file for compatibility with Rocky Linux 9
 * Wed Dec 7 2022 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.14
 - Add support for Shibboleth IdP v4 consent page
 * Mon Dec 13 2021 Ioannis Igoumenos <ioigoume@admin.grnet.gr> 1.2.13
