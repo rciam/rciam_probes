@@ -8,7 +8,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 2.0.0
+Version: 2.1.0
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -135,6 +135,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Wed July 3 2024 Nicolas Liampotis <nliam@grnet.gr> 2.1.0
+- Added Python requirements
 * Wed May 29 2024 Nicolas Liampotis <nliam@grnet.gr> 2.0.0
 - Changed Python requirements from python36-* to python3-*
 - Updated spec file for compatibility with Rocky Linux 9
