@@ -1,5 +1,5 @@
 beautifulsoup4==4.10.0
-blinker==1.8.2
+blinker==1.7.0
 brotli==1.1.0
 build==1.2.1
 certifi==2024.2.2
