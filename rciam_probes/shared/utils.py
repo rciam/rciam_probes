@@ -164,36 +164,53 @@ def fetch_cert_from_type(metadata_dict, cert_type):
 
     :return: dictionary of certificates {type<str>: certificate<str>}
     :rtype: dict
-    :todo use enumarators instead of fixed values for all,encryption,signing
+
+    TODO:
+    - Use enumarators instead of fixed values for all,encryption,signing
+    - Improve handling of Keycloak metadata
     """
     try:
+        def find_elements_by_local_name(data, local_name):
+            """Finds elements with the given local name in a dictionary-like structure."""
+            elements = []
+            for key, value in data.items():
+                if key.split(':')[-1] == local_name:
+                    elements.append(value)
+                elif isinstance(value, dict):
+                    elements.extend(find_elements_by_local_name(value, local_name))
+                elif isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            elements.extend(find_elements_by_local_name(item, local_name))
+            return elements
+
         x509_list_gen = gen_dict_extract(metadata_dict, 'KeyDescriptor')
         x509_list = next(x509_list_gen)
         x509_dict = {}
-        # If all is chosen then return a list with all the certificates
+
+        for x509_elem_obj in x509_list:
+            if isinstance(x509_elem_obj, dict):
+                mcert_type = ['unknown', x509_elem_obj.get('@use')]['@use' in x509_elem_obj]
+                key_infos = find_elements_by_local_name(x509_elem_obj, 'KeyInfo')
+                for key_info in key_infos:
+                    x509_data_elems = find_elements_by_local_name(key_info, 'X509Data')
+                    for x509_data in x509_data_elems:
+                        x509_cert_elems = find_elements_by_local_name(x509_data, 'X509Certificate')
+                        for x509_cert in x509_cert_elems:
+                            x509_dict[mcert_type] = x509_cert
+            else:
+                 x509_dict['unknown'] = x509_list.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
+
+        # If 'all' certificate types are requested then return a list with all the certificates
         if cert_type == 'all':
-            for x509_elem_obj in x509_list:
-                # if there is no certificate type then x509_elem_obj will not actually be a dictionary
-                if isinstance(x509_elem_obj, dict):
-                    mcert_type = ['unknown', x509_elem_obj.get('@use')]['@use' in x509_elem_obj]
-                    x509_dict[mcert_type] = x509_elem_obj.get('ds:KeyInfo').get('ds:X509Data').get(
-                        'ds:X509Certificate')
-                else:
-                    x509_dict['unknown'] = x509_list.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
             return x509_dict
-        else:  # If not then return the certificate of the type requested
-            for x509_elem_obj in x509_list:
-                # if there is no certificate type then x509_elem_obj will not actually be a dictionary
-                if isinstance(x509_elem_obj, dict):
-                    if x509_elem_obj.get('@use') != cert_type:
-                        continue
-                    x509_dict[x509_elem_obj.get('@use')] = x509_elem_obj.get('ds:KeyInfo').get('ds:X509Data').get(
-                        'ds:X509Certificate')
-                else:
-                    x509_dict['unknown'] = x509_list.get('ds:KeyInfo').get('ds:X509Data').get('ds:X509Certificate')
-                return x509_dict
-                # If no Certificate available raise an exception
-        raise Exception("No X509 certificate of type:%s found" % cert_type)
+
+        # If a specific certificate type is requested then return the specific certificate or 'unknown'
+        valid_types = {cert_type, 'unknown'}
+        if not valid_types & set(x509_dict.keys()):
+            raise Exception("No X509 certificate of type:%s found" % cert_type)
+        return {t: cert for t, cert in x509_dict.items() if t == 'unknown' or t == cert_type}
+
     except Exception as e:
         # Log the title of the view
         raise Exception(e.args[0]) from e
