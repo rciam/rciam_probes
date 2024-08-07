@@ -8,7 +8,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 2.1.1
+Version: 2.2.0
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -135,6 +135,9 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Wed Aug 7 2024 Nicolas Liampotis <nliam@grnet.gr> 2.2.0
+- Added support for varying XML namespace prefixes in SAML metadata health checks
+- Added support for skipping the IdP Discovery page during login checks
 * Mon Aug 5 2024 Nicolas Liampotis <nliam@grnet.gr> 2.1.1
 - Fixed Python requirements. See https://github.com/seleniumbase/SeleniumBase/issues/2782
 - Updated geckodriver to v0.34.0
