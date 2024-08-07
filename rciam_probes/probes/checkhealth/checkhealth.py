@@ -123,6 +123,10 @@ class RciamHealthCheck:
         self.__browser.get(self.__args.sp)
         evaluate_response_status(self.__browser, self.__args, self.__logger)
 
+        if self.__args.skip_idp_discovery:
+            self.__logger.debug('Skipping IdP discovery page')
+            return
+
         # In case i have a list of hops
         idp_list = self.__args.identity.split(',')
         try:
@@ -469,6 +473,9 @@ def parse_arguments(args):
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
                         help='Owner of the log file rciam_probes.log under /var/log/rciam_probes/. Default owner is nagios user.')
+    parser.add_argument('--skip-idp-discovery', dest="skip_idp_discovery",
+                        help='Skip IdP discovery if this flag is present',
+                        action='store_true')
     parser.add_argument('--version', '-V', version='%(prog)s 1.2.14', action='version')
     return parser.parse_args(args)
 
