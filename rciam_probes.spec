@@ -8,7 +8,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 2.2.0
+Version: 2.3.0
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -135,6 +135,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Wed Sep 3 2024 Nicolas Liampotis <nliam@grnet.gr> 2.3.0
+- Added support for IdP Discovery pages based on thiss.io in login checks
 * Wed Aug 7 2024 Nicolas Liampotis <nliam@grnet.gr> 2.2.0
 - Added support for varying XML namespace prefixes in SAML metadata health checks
 - Added support for skipping the IdP Discovery page during login checks
