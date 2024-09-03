@@ -127,29 +127,75 @@ class RciamHealthCheck:
             self.__logger.debug('Skipping IdP discovery page')
             return
 
-        # In case i have a list of hops
+        # Detect the discovery type (ssp, thiss)
+        disco_type = self.__detect_disco_type()
+        self.__logger.debug(f'Discovery Service type detected: {disco_type}')
+
+        # In case I have a list of IdPs
         idp_list = self.__args.identity.split(',')
+        idp_name_list = self.__args.idp_name.split(',') if self.__args.idp_name else []
+
         try:
-            for idp in idp_list:
-                # Log the title of the view
-                self.__logger.debug(self.__browser.title)
-                # urlencode idpentityid
-                idp_entity_id_url_enc = quote(idp, safe='')
-                self.__logger.debug('Safe URL IdP entity ID: ' + idp_entity_id_url_enc)
-                selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
-                # Find the hyperlink
-                self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
-                # Wait until it is clickable
-                self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
-                self.__wait_for_spinner()
-                self.__hide_cookie_policy()
-                # Cache cookies
-                self.__cached_cookies = self.__browser.get_cookies()
-                # Select IdP defined in the params
-                self.__browser.find_element_by_css_selector(selector_callable).click()
+            # Handle SimpleSAMLphp (SSP) discovery service
+            if disco_type == "ssp":
+                for idp in idp_list:
+                    # Log the title of the view
+                    self.__logger.debug(self.__browser.title)
+                    # URL-encode IdP entityID
+                    idp_entity_id_url_enc = quote(idp, safe='')
+                    self.__logger.debug('Safe URL IdP entity ID: ' + idp_entity_id_url_enc)
+                    selector_callable = "a[href*='%s']" % (idp_entity_id_url_enc)
+                    # Find the hyperlink
+                    self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_callable)))
+                    # Wait until it is clickable
+                    self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_callable)))
+                    self.__wait_for_spinner()
+                    self.__hide_cookie_policy()
+                    # Cache cookies
+                    self.__cached_cookies = self.__browser.get_cookies()
+                    # Select IdP defined in the params
+                    self.__browser.find_element_by_css_selector(selector_callable).click()
+
+            # Handle thiss.io discovery service
+            elif disco_type == "thiss":
+                for i, idp in enumerate(idp_list):
+                    if idp_name_list and i < len(idp_name_list):
+                        search_term = idp_name_list[i]
+                    else:
+                        search_term = urlparse(idp).hostname
+
+                    self.__logger.debug(f'Searching for IdP: {search_term}')
+                    search_box = self.__browser.find_element(By.ID, "searchinput")
+                    # Ensure the element is clickable or interactable
+                    self.__wait.until(EC.element_to_be_clickable((By.ID, "searchinput")))
+                    search_box.clear()
+                    search_box.send_keys(search_term)
+
+                    # Wait for the search results to appear
+                    self.__wait.until(EC.presence_of_element_located((By.ID, "ds-search-list")))
+
+                    # Locate the desired result based on the IdP entity ID
+                    result_selector = f"li.institution.identityprovider[data-href*='{idp}']"
+                    self.__wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, result_selector)))
+
+                    # Click the search result
+                    self.__browser.find_element(By.CSS_SELECTOR, result_selector).click()
+
+            else:
+                raise RuntimeError('Unsupported Discovery Service type')
+
         except TimeoutException:
             raise RuntimeError('Discovery Service timeout')
 
+    def __detect_disco_type(self):
+        """Detect whether the discovery type is thiss.io or SimpleSAMLphp."""
+        try:
+            # Check for elements unique to thiss.io
+            self.__browser.find_element(By.ID, "searchinput")
+            return "thiss"
+        except:
+            # Fallback to SSP if thiss.io element is not found
+            return "ssp"
 
     def __accept_all_ssp_modules(self):
         """
@@ -467,8 +513,10 @@ def parse_arguments(args):
     parser.add_argument('--rs', '-r', dest="rs",
                         help='Service Provider Landing Page URL. If not provided the prove will assume that the landing page is the same as the Authentication URL. This is true for the case of SimpleSamlPHP Dummy SPs.')
     parser.add_argument('--idp', '-i', dest="identity",
-                        help='AuthnAuthority URL, e.g. https://idp.admin.grnet.gr/idp/shibboleth',
+                        help='Comma-separated list of Identity Provider entity IDs, e.g. "https://idp.example.org,https://idp2.example.org"',
                         required=True)
+    parser.add_argument('--idp-name', dest="idp_name",
+                        help='Comma-separated list of Identity Provider display names to search during discovery, e.g. "My University,Another University". When provided, these will be used instead of the IdP entity IDs')
     parser.add_argument('--hostname', '-H', dest="hostname", required=True,
                         help='Domain, protocol assumed to be https, e.g. example.com')
     parser.add_argument('--logowner', '-o', dest="logowner", default=ParamDefaults.LOG_OWNER.value,
