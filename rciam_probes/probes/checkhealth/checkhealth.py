@@ -127,7 +127,7 @@ class RciamHealthCheck:
             self.__logger.debug('Skipping IdP discovery page')
             return
 
-        # Detect the discovery type (ssp, thiss)
+        # Detect the discovery type (thiss, keycloak, or ssp)
         disco_type = self.__detect_disco_type()
         self.__logger.debug(f'Discovery Service type detected: {disco_type}')
 
@@ -181,6 +181,54 @@ class RciamHealthCheck:
                     # Click the search result
                     self.__browser.find_element(By.CSS_SELECTOR, result_selector).click()
 
+            # Handle Keycloak discovery service with search box
+            elif disco_type == "keycloak":
+                for i, idp in enumerate(idp_list):
+                    # Determine search term (use idp_name_list if provided, else extract from idp)
+                    if idp_name_list and i < len(idp_name_list):
+                        search_term = idp_name_list[i]
+                    else:
+                        search_term = urlparse(idp).hostname
+
+                    self.__logger.debug(f'Searching for IdP: {search_term}')
+                    # Locate the search box
+                    search_box = self.__browser.find_element(By.ID, "kc-providers-filter")
+                    # Ensure the element is clickable or interactable
+                    self.__wait.until(EC.element_to_be_clickable((By.ID, "kc-providers-filter")))
+                    search_box.clear()
+                    search_box.send_keys(search_term)
+
+                    # Wait for spinner to disappear and results to appear
+                    retries = 3
+                    for attempt in range(retries):
+                        try:
+                            # Wait for spinner to hide (if present)
+                            spinner = self.__browser.find_elements(By.ID, "spinner")
+                            if spinner:
+                                self.__wait.until(lambda driver: "hidden" in driver.find_element(By.ID, "spinner").get_attribute("class"))
+                            # Wait for any IdP button
+                            self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.pf-c-button.kc-social-item")))
+                            # Log found buttons
+                            elements = self.__browser.find_elements(By.CSS_SELECTOR, "a.pf-c-button.kc-social-item")
+                            self.__logger.debug(f"Found {len(elements)} IdP buttons: {[e.text for e in elements]}")
+                            break
+                        except (NoSuchElementException, TimeoutException) as e:
+                            if attempt == retries - 1:
+                                self.__logger.error(f"Failed to load IdP list after {retries} attempts: {str(e)}")
+                                raise RuntimeError("Keycloak IdP list not loaded")
+                            self.__logger.debug(f"Retry {attempt + 1}/{retries} waiting for IdP list: {str(e)}")
+                            time.sleep(3)
+
+                    # Locate the desired result
+                    result_selector = f"//a[contains(@class, 'pf-c-button') and contains(@class, 'kc-social-item') and .//span[contains(text(), '{search_term}')]]"
+                    try:
+                        self.__wait.until(EC.element_to_be_clickable((By.XPATH, result_selector)))
+                    except (NoSuchElementException, TimeoutException) as e:
+                        self.__logger.error(f"Could not find IdP '{idp}' after searching '{search_term}' in Keycloak: {str(e)}")
+                        raise RuntimeError(f"IdP '{idp}' not found in Keycloak discovery service")
+
+                    self.__browser.find_element(By.XPATH, result_selector).click()
+
             else:
                 raise RuntimeError('Unsupported Discovery Service type')
 
@@ -188,14 +236,20 @@ class RciamHealthCheck:
             raise RuntimeError('Discovery Service timeout')
 
     def __detect_disco_type(self):
-        """Detect whether the discovery type is thiss.io or SimpleSAMLphp."""
+        """Detect whether the discovery type is thiss.io, Keycloak or SimpleSAMLphp (default)."""
         try:
             # Check for elements unique to thiss.io
             self.__browser.find_element(By.ID, "searchinput")
             return "thiss"
-        except:
-            # Fallback to SSP if thiss.io element is not found
-            return "ssp"
+        except NoSuchElementException:
+            try:
+                # Check for Keycloak (login-pf-page and kc-header)
+                if (self.__browser.find_element(By.CLASS_NAME, "login-pf-page") and
+                    self.__browser.find_element(By.ID, "kc-header")):
+                    return "keycloak"
+            except NoSuchElementException:
+                # Fallback to SimpleSAMLphp
+                return "ssp"
 
     def __accept_all_ssp_modules(self):
         """
