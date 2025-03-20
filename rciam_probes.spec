@@ -8,7 +8,7 @@
 Name: rciam_probes
 Summary: RCIAM related probes - Complete
 Group: grnet/rciam
-Version: 2.4.0
+Version: 2.4.1
 Release: %(echo $GIT_COMMIT_DATE).%(echo $GIT_COMMIT_HASH)%{?dist}
 Url: https://github.com/rciam/%{name}
 License: Apache-2.0
@@ -135,6 +135,8 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %changelog
+* Thu Mar 20 2025 Nicolas Liampotis <nliam@grnet.gr> 2.4.1
+- Fixed support for IdP Discovery pages based on Keycloak in login checks
 * Mon Mar 3 2025 Nicolas Liampotis <nliam@grnet.gr> 2.4.0
 - Added support for IdP Discovery pages based on Keycloak in login checks
 * Wed Sep 3 2024 Nicolas Liampotis <nliam@grnet.gr> 2.3.0
