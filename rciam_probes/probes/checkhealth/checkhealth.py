@@ -188,46 +188,45 @@ class RciamHealthCheck:
                     if idp_name_list and i < len(idp_name_list):
                         search_term = idp_name_list[i]
                     else:
-                        search_term = urlparse(idp).hostname
+                        # Fallback to idp if no hostname
+                        search_term = urlparse(idp).hostname or idp
 
+                    self.__logger.debug(f'Processing IdP {i+1}/{len(idp_list)}: {idp}, search_term: {search_term}')
+                    t.sleep(5)  # Initial delay for page loading
                     self.__logger.debug(f'Searching for IdP: {search_term}')
+
                     # Locate the search box
                     search_box = self.__browser.find_element(By.ID, "kc-providers-filter")
                     # Ensure the element is clickable or interactable
                     self.__wait.until(EC.element_to_be_clickable((By.ID, "kc-providers-filter")))
                     search_box.clear()
                     search_box.send_keys(search_term)
+                    self.__logger.debug("Typed search term into kc-providers-filter")
 
                     # Wait for spinner to disappear and results to appear
-                    retries = 3
-                    for attempt in range(retries):
-                        try:
-                            # Wait for spinner to hide (if present)
-                            spinner = self.__browser.find_elements(By.ID, "spinner")
-                            if spinner:
-                                self.__wait.until(lambda driver: "hidden" in driver.find_element(By.ID, "spinner").get_attribute("class"))
-                            # Wait for any IdP button
-                            self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.pf-c-button.kc-social-item")))
-                            # Log found buttons
-                            elements = self.__browser.find_elements(By.CSS_SELECTOR, "a.pf-c-button.kc-social-item")
-                            self.__logger.debug(f"Found {len(elements)} IdP buttons: {[e.text for e in elements]}")
-                            break
-                        except (NoSuchElementException, TimeoutException) as e:
-                            if attempt == retries - 1:
-                                self.__logger.error(f"Failed to load IdP list after {retries} attempts: {str(e)}")
-                                raise RuntimeError("Keycloak IdP list not loaded")
-                            self.__logger.debug(f"Retry {attempt + 1}/{retries} waiting for IdP list: {str(e)}")
-                            time.sleep(3)
+                    try:
+                        spinner = self.__browser.find_elements(By.ID, "spinner")
+                        if spinner:
+                            self.__wait.until(lambda driver: "hidden" in driver.find_element(By.ID, "spinner").get_attribute("class"))
+                            self.__logger.debug("Spinner hidden")
+                        self.__wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.pf-c-button.kc-social-item")))
+                        elements = self.__browser.find_elements(By.CSS_SELECTOR, "a.pf-c-button.kc-social-item")
+                        self.__logger.debug(f"Found {len(elements)} IdP buttons: {[e.text for e in elements]}")
+                    except (NoSuchElementException, TimeoutException) as e:
+                        self.__logger.error(f"Failed to load IdP list for '{idp}' after searching '{search_term}': {str(e)}")
+                        raise RuntimeError("Keycloak IdP list not loaded")
 
-                    # Locate the desired result
+                    # Locate and click the desired result
                     result_selector = f"//a[contains(@class, 'pf-c-button') and contains(@class, 'kc-social-item') and .//span[contains(text(), '{search_term}')]]"
                     try:
                         self.__wait.until(EC.element_to_be_clickable((By.XPATH, result_selector)))
+                        self.__browser.find_element(By.XPATH, result_selector).click()
+                        self.__logger.debug(f"Clicked IdP: {search_term}")
+                        break  # Exit after successful click (single login intent)
                     except (NoSuchElementException, TimeoutException) as e:
                         self.__logger.error(f"Could not find IdP '{idp}' after searching '{search_term}' in Keycloak: {str(e)}")
+                        self.__logger.debug(f"Page source: {self.__browser.page_source[:1000]}")
                         raise RuntimeError(f"IdP '{idp}' not found in Keycloak discovery service")
-
-                    self.__browser.find_element(By.XPATH, result_selector).click()
 
             else:
                 raise RuntimeError('Unsupported Discovery Service type')
